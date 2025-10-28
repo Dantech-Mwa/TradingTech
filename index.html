@@ -32,6 +32,9 @@
     .result-item { padding:8px; cursor:pointer; border-bottom:1px solid var(--border); }
     .result-item:hover { background:var(--accent); color:#fff; }
     canvas { width:100%; height:500px; background:var(--card); border-radius:16px; margin:16px 0; border:1px solid var(--border); }
+    .indicators-panel { display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; }
+    .ind-btn { padding:6px 12px; background:var(--card); border:1px solid var(--border); border-radius:8px; cursor:pointer; color:var(--text); }
+    .ind-btn.active { background:var(--accent); color:#fff; }
     .footer { text-align:center; margin:24px 0; font-size:0.8rem; color:#888; }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
@@ -51,20 +54,27 @@
         <button class="btn" data-symbol="ETHUSDT">ETH</button>
         <button class="btn" data-symbol="BNBUSDT">BNB</button>
       </div>
+      <div class="indicators-panel" id="indicators">
+        <button class="ind-btn" data-ind="none">No Overlay</button>
+        <button class="ind-btn" data-ind="sma">SMA</button>
+        <button class="ind-btn" data-ind="rsi">RSI</button>
+        <button class="ind-btn" data-ind="volume">Volume</button>
+      </div>
     </div>
     <canvas id="chart"></canvas>
-    <div class="footer">100% Independent • Binance Live • Pure Canvas</div>
+    <div class="footer">Live Candles • Click Indicators • Our System</div>
   </div>
 
   <script>
     // ──────────────────────────────────────────────────────────────
-    // PURE CANVAS + WEBSOCKET FIXED + DEBOUNCE
+    // PURE CANVAS CANDLESTICK + INDICATORS + FIXED WS
     // ──────────────────────────────────────────────────────────────
     const canvas = document.getElementById('chart');
     const ctx = canvas.getContext('2d');
     let width, height;
-    let data = [], currentSymbol = 'BTCUSDT', ws = null;
-    let reconnectTimeout;
+    let candles = [], currentSymbol = 'BTCUSDT', ws = null;
+    let reconnectTimeout, activeIndicator = 'none';
+    let allSymbols = [];
 
     // Resize
     function resize() {
@@ -84,61 +94,81 @@
       document.getElementById('price').textContent = `$${parseFloat(p).toFixed(2)}`;
     }
 
-    // Binance WebSocket (FIXED)
+    // Fixed WebSocket for Candles
     function connectWS() {
-      // Clean up old connection
       if (ws) {
         ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null;
         ws.close();
       }
       clearTimeout(reconnectTimeout);
-
       setStatus('Connecting...', 'info');
-      const stream = currentSymbol.toLowerCase() + '@ticker';
+      const stream = currentSymbol.toLowerCase() + '@kline_1m'; // Candles stream
       ws = new WebSocket('wss://stream.binance.com:9443/ws/' + stream);
 
       ws.onopen = () => {
-        setStatus('LIVE • Connected', 'live');
-        // Immediate price
-        fetchPrice();
+        setStatus('LIVE • Candles', 'live');
+        fetchInitialData();
       };
 
       ws.onmessage = e => {
-        const d = JSON.parse(e.data);
-        updatePrice(d.c);
-        data.push({ time: Date.now(), price: +d.c });
-        if (data.length > 100) data.shift();
-        draw();
+        const k = JSON.parse(e.data).k;
+        if (k.x) { // Closed candle
+          const candle = {
+            time: k.t / 1000,
+            open: +k.o,
+            high: +k.h,
+            low: +k.l,
+            close: +k.c,
+            volume: +k.v
+          };
+          candles.push(candle);
+          if (candles.length > 100) candles.shift();
+          updatePrice(k.c);
+          draw();
+        }
       };
 
-      ws.onerror = () => {
-        setStatus('Connection error', 'error');
-      };
-
+      ws.onerror = () => setStatus('Error - Retrying', 'error');
       ws.onclose = () => {
-        setStatus('Reconnecting in 3s...', 'error');
+        setStatus('Reconnecting...', 'error');
         reconnectTimeout = setTimeout(connectWS, 3000);
       };
     }
 
-    // Fetch price immediately (fallback)
-    function fetchPrice() {
-      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentSymbol}`)
-        .then(r => r.json())
-        .then(d => updatePrice(d.price))
-        .catch(() => {});
+    // Initial Data Fetch
+    async function fetchInitialData() {
+      try {
+        const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=1m&limit=50`);
+        const data = await res.json();
+        candles = data.map(k => ({
+          time: k[0] / 1000,
+          open: +k[1],
+          high: +k[2],
+          low: +k[3],
+          close: +k[4],
+          volume: +k[5]
+        }));
+        updatePrice(candles[candles.length - 1]?.close || 0);
+        draw();
+        setStatus('LIVE • 50 Candles Loaded', 'live');
+      } catch (e) {
+        setStatus('Fallback Mode', 'error');
+        setTimeout(fetchInitialData, 2000);
+      }
     }
 
-    // Pure Canvas Chart
+    // Pure Canvas: Candles + Indicators
     function draw() {
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
       ctx.fillRect(0, 0, width, height);
-      if (data.length < 2) return;
+      if (candles.length < 1) return;
 
-      const prices = data.map(d => d.price);
-      const min = Math.min(...prices), max = Math.max(...prices);
-      const range = max - min || 1;
-      const padding = 50;
+      const minTime = Math.min(...candles.map(c => c.time));
+      const maxTime = Math.max(...candles.map(c => c.time));
+      const minPrice = Math.min(...candles.map(c => c.low));
+      const maxPrice = Math.max(...candles.map(c => c.high));
+      const range = maxPrice - minPrice || 1;
+      const padding = 50, candleWidth = (width - 2*padding) / candles.length;
 
       // Grid
       ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid').trim();
@@ -148,43 +178,122 @@
         ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(width - padding, y); ctx.stroke();
       }
 
-      // Price Line
-      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--green').trim();
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      data.forEach((d, i) => {
-        const x = padding + (width - 2*padding) * (i / (data.length - 1));
-        const y = height - padding - (height - 2*padding) * ((d.price - min) / range);
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      // Candles
+      candles.forEach((c, i) => {
+        const x = padding + (width - 2*padding) * ((c.time - minTime) / (maxTime - minTime));
+        const top = height - padding - (height - 2*padding) * ((c.high - minPrice) / range);
+        const bottom = height - padding - (height - 2*padding) * ((c.low - minPrice) / range);
+        const openY = height - padding - (height - 2*padding) * ((c.open - minPrice) / range);
+        const closeY = height - padding - (height - 2*padding) * ((c.close - minPrice) / range);
+
+        // Wick
+        ctx.strokeStyle = c.close >= c.open ? 'var(--green)' : 'var(--red)';
+        ctx.lineWidth = 1;
+        ctx.beginPath(); ctx.moveTo(x, top); ctx.lineTo(x, bottom); ctx.stroke();
+
+        // Body
+        ctx.fillStyle = c.close >= c.open ? 'var(--green)' : 'var(--red)';
+        const bodyTop = Math.min(openY, closeY);
+        const bodyHeight = Math.abs(openY - closeY);
+        ctx.fillRect(x - candleWidth/2, bodyTop, candleWidth, bodyHeight);
+
+        // Volume (simple bars under)
+        if (activeIndicator === 'volume') {
+          const volY = height - 20;
+          const volHeight = (c.volume / Math.max(...candles.map(c => c.volume))) * 50;
+          ctx.fillStyle = c.close >= c.open ? 'rgba(0,255,136,0.5)' : 'rgba(255,59,92,0.5)';
+          ctx.fillRect(x - candleWidth/2, volY - volHeight, candleWidth, volHeight);
+        }
       });
-      ctx.stroke();
+
+      // Indicator Overlay (e.g., SMA line)
+      if (activeIndicator === 'sma') {
+        const sma = calculateSMA(candles, 20);
+        ctx.strokeStyle = 'var(--gold)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        sma.forEach((val, i) => {
+          const x = padding + (width - 2*padding) * (i / (sma.length - 1));
+          const y = height - padding - (height - 2*padding) * ((val - minPrice) / range);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
+
+      // RSI (separate scale if needed)
+      if (activeIndicator === 'rsi') {
+        const rsi = calculateRSI(candles, 14);
+        // Draw as line in lower third (simplified)
+        const rsiMin = 0, rsiMax = 100;
+        ctx.strokeStyle = 'var(--purple)';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        rsi.forEach((val, i) => {
+          const x = padding + (width - 2*padding) * (i / (rsi.length - 1));
+          const y = height * 0.7 + (height * 0.3) * ((rsiMax - val) / rsiMax); // Lower panel
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.stroke();
+      }
 
       // Labels
       ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
       ctx.font = '14px Inter';
-      ctx.fillText(`$${max.toFixed(2)}`, width - padding - 80, 25);
-      ctx.fillText(`$${min.toFixed(2)}`, width - padding - 80, height - 10);
+      ctx.fillText(`High: $${maxPrice.toFixed(2)}`, 10, 20);
+      ctx.fillText(`Low: $${minPrice.toFixed(2)}`, 10, height - 10);
     }
 
-    // Symbol Switch with DEBOUNCE
-    let switchTimeout;
+    // Simple Indicators
+    function calculateSMA(data, len) {
+      if (data.length < len) return [];
+      return data.slice(len - 1).map((c, i) => {
+        const sum = data.slice(i, i + len).reduce((s, d) => s + d.close, 0) / len;
+        return sum;
+      });
+    }
+
+    function calculateRSI(data, len) {
+      if (data.length < len + 1) return [];
+      let gains = 0, losses = 0;
+      for (let i = 1; i <= len; i++) {
+        const change = data[i].close - data[i-1].close;
+        if (change > 0) gains += change; else losses -= change;
+      }
+      let avgGain = gains / len, avgLoss = losses / len;
+      const rsi = [100 - (100 / (1 + avgGain / (avgLoss || 1)))];
+      for (let i = len + 1; i < data.length; i++) {
+        const change = data[i].close - data[i-1].close;
+        avgGain = (avgGain * (len - 1) + (change > 0 ? change : 0)) / len;
+        avgLoss = (avgLoss * (len - 1) + (change < 0 ? -change : 0)) / len;
+        rsi.push(100 - (100 / (1 + avgGain / (avgLoss || 1))));
+      }
+      return rsi;
+    }
+
+    // Indicator Toggle (TradingView-Style)
+    document.getElementById('indicators').addEventListener('click', e => {
+      if (e.target.dataset.ind) {
+        document.querySelectorAll('.ind-btn').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        activeIndicator = e.target.dataset.ind;
+        draw(); // Redraw with new overlay
+      }
+    });
+
+    // Symbol Switch
     document.querySelectorAll('[data-symbol]').forEach(b => {
       b.onclick = () => {
-        clearTimeout(switchTimeout);
         document.querySelectorAll('[data-symbol]').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         currentSymbol = b.dataset.symbol;
-        data = [];
-        switchTimeout = setTimeout(() => {
-          connectWS();
-        }, 300); // Prevent spam
+        candles = [];
+        setTimeout(connectWS, 500); // Debounce
       };
     });
 
-    // Search
+    // Search (Full Assets)
     const searchInput = document.getElementById('symbolSearch');
     const resultsDiv = document.getElementById('symbolResults');
-    let allSymbols = [];
     searchInput.oninput = async () => {
       const q = searchInput.value.toUpperCase().trim();
       if (q.length < 2) { resultsDiv.style.display = 'none'; return; }
@@ -201,20 +310,23 @@
 
     function selectSymbol(sym) {
       currentSymbol = sym;
-      data = [];
+      candles = [];
       document.querySelectorAll('[data-symbol]').forEach(x => x.classList.remove('active'));
-      const btn = document.createElement('button');
-      btn.className = 'btn active'; btn.textContent = sym.replace('USDT',''); btn.dataset.symbol = sym;
+      const btn = document.createElement('button'); btn.className = 'btn active'; btn.textContent = sym.replace('USDT',''); btn.dataset.symbol = sym;
       document.querySelector('.controls').appendChild(btn);
-      btn.onclick = () => { currentSymbol = sym; data = []; setTimeout(connectWS, 300); };
+      btn.onclick = () => { currentSymbol = sym; candles = []; setTimeout(connectWS, 500); };
       searchInput.value = ''; resultsDiv.style.display = 'none';
-      setTimeout(connectWS, 300);
+      setTimeout(connectWS, 500);
     }
+
+    // Hide results on click outside
+    document.addEventListener('click', e => {
+      if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) resultsDiv.style.display = 'none';
+    });
 
     // INIT
     resize();
     connectWS();
-    fetchPrice(); // Immediate price
   </script>
 </body>
 </html>
