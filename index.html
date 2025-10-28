@@ -5,19 +5,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DJG ELITE TVIEW</title>
 
-  <!-- Lightweight Charts -->
+  <!-- Lightweight Charts v4 -->
   <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
   <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
     :root[data-theme="dark"] {
-      --bg:#0f0f1a;--card:#1a1b2f;--text:#e0e0ff;--green:#00ff88;--red:#ff3b5c;--accent:#00d4ff;--grid:rgba(255,255,255,0.1);
-      --border:rgba(255,255,255,0.2);--shadow:0 8px 32px rgba(0,0,0,0.4);--glass:rgba(255,255,255,0.05);
+      --bg:#0f0f1a;--card:#1a1b2f;--text:#e0e0ff;--green:#00ff88;--red:#ff3b5c;--accent:#00d4ff;--gold:#ffd700;--purple:#aa00ff;--orange:#ff8800;
+      --grid:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.2);--shadow:0 8px 32px rgba(0,0,0,0.4);--glass:rgba(255,255,255,0.05);
     }
     :root[data-theme="light"] {
-      --bg:#f8f9fa;--card:#fff;--text:#212529;--green:#28a745;--red:#dc3545;--accent:#007bff;--grid:rgba(0,0,0,0.1);
-      --border:rgba(0,0,0,0.1);--shadow:0 8px 32px rgba(0,0,0,0.12);--glass:rgba(0,0,0,0.03);
+      --bg:#f8f9fa;--card:#fff;--text:#212529;--green:#28a745;--red:#dc3545;--accent:#007bff;--gold:#ffc107;--purple:#6f42c1;--orange:#fd7e14;
+      --grid:rgba(0,0,0,0.1);--border:rgba(0,0,0,0.1);--shadow:0 8px 32px rgba(0,0,0,0.12);--glass:rgba(0,0,0,0.03);
     }
     *{margin:0;padding:0;box-sizing:border-box;}
     body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:12px;min-height:100vh;}
@@ -31,11 +31,16 @@
     .status.info{background:rgba(0,212,255,0.1);color:var(--accent);}
 
     .trading-actions{display:flex;gap:8px;margin:12px 0;justify-content:center;flex-wrap:nowrap;}
-    .btn-buy,.btn-sell,.btn-wallet{background:var(--green);padding:8px 16px;font-size:0.9rem;font-weight:700;flex:1;max-width:120px;border:none;border-radius:8px;color:#fff;cursor:pointer;transition:all .3s;}
+    .btn-buy,.btn-sell,.btn-wallet{padding:8px 16px;font-size:0.9rem;font-weight:700;flex:1;max-width:120px;border:none;border-radius:8px;color:#fff;cursor:pointer;transition:all .3s;}
+    .btn-buy{background:var(--green);}
     .btn-sell{background:var(--red);}
-    .btn-wallet{background:var(--purple, #aa00ff);}
+    .btn-wallet{background:var(--purple);}
     .btn{background:var(--accent);max-width:160px;}
     .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
+
+    .layout-controls{display:flex;gap:8px;margin:16px 0;justify-content:center;flex-wrap:wrap;}
+    .layout-btn{padding:6px 12px;background:var(--glass);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;}
+    .layout-btn.active{background:var(--accent);color:#fff;}
 
     .layout-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:16px;margin:20px 0;}
     .chart-panel{background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;flex-direction:column;}
@@ -51,10 +56,10 @@
     .search-box{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--glass);color:var(--text);width:150px;font-size:0.85rem;}
 
     .chart-body{flex:1;position:relative;}
-    #chart-1,#chart-2,#chart-3,#chart-4{width:100%;height:100%;}
+    .chart{width:100%;height:100%;}
 
     .ticker-bar{background:var(--card);border-top:1px solid var(--border);padding:6px 0;overflow:hidden;height:35px;}
-    .ticker-content{display:flex;gap:30px;white-space:nowrap;animation:ticker-scroll 40s linear infinite;}
+    .ticker-content{display:flex;gap:30px;white-space:nowrap;animation:ticker-scroll 60s linear infinite;}
     @keyframes ticker-scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
     .ticker-item{display:flex;align-items:center;gap:6px;flex-shrink:0;}
     .ticker-symbol{font-weight:600;color:var(--accent);font-size:0.8rem;}
@@ -65,9 +70,9 @@
     .price-up{color:var(--green);}
     .price-down{color:var(--red);}
 
-    .layout-controls{display:flex;gap:8px;margin:16px 0;justify-content:center;flex-wrap:wrap;}
-    .layout-btn{padding:6px 12px;background:var(--glass);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;}
-    .layout-btn.active{background:var(--accent);color:#fff;}
+    .backtest-controls{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;align-items:center;justify-content:center;}
+    .backtest-slider{flex:1;max-width:400px;height:6px;border-radius:3px;background:var(--glass);outline:none;}
+    .backtest-results{background:var(--card);padding:20px;border-radius:12px;margin:20px 0;border:1px solid var(--border);box-shadow:var(--shadow);display:none;}
 
     .theme-toggle{position:fixed;top:20px;right:20px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;z-index:1000;font-weight:600;font-size:0.9rem;}
     .theme-toggle:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
@@ -81,10 +86,6 @@
     .setting-label{display:block;margin-bottom:5px;font-weight:500;}
     .setting-input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--glass);color:var(--text);}
 
-    .indicator-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px;}
-    .indicator-item{padding:8px;border:1px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:0.85rem;}
-    .indicator-item.active{background:var(--green);color:#fff;}
-
     @media(max-width:768px){
       .layout-container{grid-template-columns:1fr;}
       .chart-header{flex-direction:column;gap:8px;}
@@ -97,7 +98,42 @@
 <body>
   <button class="theme-toggle" id="themeToggle">Light</button>
 
-  <!-- Layout Settings Modal -->
+  <!-- Settings Modal -->
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Chart Settings</div>
+        <button class="close-modal" id="closeModal">x</button>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Chart Style</label>
+        <select class="setting-input" id="chartStyle">
+          <option value="candlestick">Candlestick</option>
+          <option value="line">Line</option>
+          <option value="area">Area</option>
+          <option value="bars">Bars</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Price Scale</label>
+        <select class="setting-input" id="priceScale">
+          <option value="regular">Regular</option>
+          <option value="logarithmic">Logarithmic</option>
+          <option value="percentage">Percentage</option>
+        </select>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Grid Lines</label>
+        <select class="setting-input" id="gridLines">
+          <option value="show">Show</option>
+          <option value="hide">Hide</option>
+        </select>
+      </div>
+      <button class="btn" style="width:100%;margin-top:15px;" id="applySettings">Apply</button>
+    </div>
+  </div>
+
+  <!-- Layout Modal -->
   <div class="modal" id="layoutModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -129,7 +165,7 @@
     <div class="header">
       <h1>DJG ELITE TVIEW</h1>
       <div class="price" id="price">$0.00</div>
-      <div id="status" class="status info">Connecting...</div>
+      <div id="status" class="status info">Connecting to Binance...</div>
       <div class="trading-actions">
         <button class="btn btn-buy" id="buyButton">BUY</button>
         <button class="btn btn-sell" id="sellButton">SELL</button>
@@ -137,11 +173,12 @@
       </div>
     </div>
 
-    <!-- Layout Controls -->
+    <!-- Layout & Backtest Controls -->
     <div style="text-align:center;margin:16px 0;">
       <button class="btn" id="layoutSettings">Layout</button>
       <button class="btn" id="saveLayout">Save Layout</button>
       <button class="btn" id="loadLayout">Load Layout</button>
+      <button class="btn" id="chartSettingsBtn">Settings</button>
     </div>
 
     <!-- Multi-Chart Layout -->
@@ -150,26 +187,34 @@
         <div class="chart-header">
           <div class="chart-controls">
             <div class="dropdown">
-              <button class="dropdown-btn"><span class="symbol">BTC/USDT</span></button>
-              <div class="dropdown-content">
-                <input type="text" class="search-box" placeholder="Search...">
-                <div class="dropdown-list" data-panel="1"></div>
+              <button class="dropdown-btn" id="symbolsBtn"><span id="currentSymbol">BTC/USDT</span></button>
+              <div class="dropdown-content" id="symbolDropdown">
+                <input type="text" class="search-box" placeholder="Search symbols..." id="symbolSearch">
+                <div class="dropdown-list" id="symbolList"></div>
               </div>
             </div>
             <div class="dropdown">
-              <button class="dropdown-btn"><span class="tf">1m</span></button>
-              <div class="dropdown-content">
-                <div class="dropdown-item active" data-tf="1m">1m</div>
-                <div class="dropdown-item" data-tf="5m">5m</div>
-                <div class="dropdown-item" data-tf="15m">15m</div>
-                <div class="dropdown-item" data-tf="1h">1h</div>
-                <div class="dropdown-item" data-tf="1d">1d</div>
+              <button class="dropdown-btn" id="timeframeBtn"><span id="currentTimeframe">1m</span></button>
+              <div class="dropdown-content" id="timeframeDropdown">
+                <div class="dropdown-item active" data-tf="1m">1 Minute</div>
+                <div class="dropdown-item" data-tf="3m">3 Minutes</div>
+                <div class="dropdown-item" data-tf="5m">5 Minutes</div>
+                <div class="dropdown-item" data-tf="15m">15 Minutes</div>
+                <div class="dropdown-item" data-tf="1h">1 Hour</div>
+                <div class="dropdown-item" data-tf="1d">1 Day</div>
               </div>
             </div>
             <div class="dropdown">
               <button class="dropdown-btn">Indicators</button>
               <div class="dropdown-content">
-                <div class="indicator-list" data-panel="1"></div>
+                <input type="text" class="search-box" placeholder="Search indicators..." id="indicatorSearch">
+                <div class="dropdown-list" id="indicatorList">
+                  <div class="dropdown-item" data-indicator="sma">SMA</div>
+                  <div class="dropdown-item" data-indicator="ema">EMA</div>
+                  <div class="dropdown-item" data-indicator="rsi">RSI</div>
+                  <div class="dropdown-item" data-indicator="macd">MACD</div>
+                  <div class="dropdown-item" data-indicator="bollinger">Bollinger</div>
+                </div>
               </div>
             </div>
           </div>
@@ -179,19 +224,70 @@
       </div>
     </div>
 
+    <!-- Backtest -->
+    <div class="backtest-controls">
+      <button class="btn" id="startBacktest">Backtest</button>
+      <button class="btn" id="pauseBacktest" disabled>Pause</button>
+      <input type="range" class="backtest-slider" id="backtestSlider" min="0" max="100" value="0">
+      <span id="backtestProgress">0%</span>
+      <button class="btn" id="resetBacktest">Reset</button>
+    </div>
+    <div id="backtestResults" class="backtest-results"></div>
+
+    <!-- Ticker -->
     <div class="ticker-bar">
       <div class="ticker-content" id="tickerContent"></div>
+    </div>
+
+    <div class="footer" style="text-align:center;margin:30px 0 20px;font-size:0.9rem;color:var(--text);opacity:0.7;">
+      DJG ELITE TVIEW • Professional Trading Platform
     </div>
   </div>
 
   <script>
     // === CORE STATE ===
-    const charts = {}, indicators = {}, layouts = { current: '1', saved: {} };
-    const panels = new Map();
-    const syncMode = { value: 'none' };
-    let tickerWs = null;
+    let currentSymbol = 'BTCUSDT', currentTF = '1m';
+    let klineWs = null, tickerWs = null;
+    let historicalData = [], isBacktesting = false, backtestIndex = 0, backtestInterval;
+    let charts = {}, indicators = {}, activePanel = '1';
+    let syncMode = 'none';
+    const popularSymbols = ['BTCUSDT','ETHUSDT','BNBUSDT','ADAUSDT','SOLUSDT','XRPUSDT'];
 
-    // === CHART CREATION ===
+    // === TICKER ===
+    function initTicker() {
+      const content = document.getElementById('tickerContent');
+      content.innerHTML = '';
+      popularSymbols.forEach(s => {
+        const el = document.createElement('div');
+        el.className = 'ticker-item'; el.id = `ticker-${s}`;
+        el.innerHTML = `<span class="ticker-symbol">${s.replace('USDT','')}</span><span class="ticker-price">$0.00</span><span class="ticker-change">0.00%</span>`;
+        content.appendChild(el);
+      });
+    }
+
+    function connectTickerWS() {
+      if (tickerWs) tickerWs.close();
+      const streams = popularSymbols.map(s => `${s.toLowerCase()}@ticker`).join('/');
+      tickerWs = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
+      tickerWs.onopen = () => console.log('Ticker WS open');
+      tickerWs.onmessage = e => {
+        const m = JSON.parse(e.data).data;
+        if (!m) return;
+        const el = document.getElementById(`ticker-${m.s}`);
+        if (el) {
+          const price = +m.c, change = +m.P;
+          const priceEl = el.querySelector('.ticker-price');
+          priceEl.textContent = `$${price.toFixed(2)}`;
+          priceEl.className = `ticker-price ${price > +el.dataset.prev ? 'price-up' : price < +el.dataset.prev ? 'price-down' : ''}`;
+          el.dataset.prev = price;
+          const changeEl = el.querySelector('.ticker-change');
+          changeEl.className = `ticker-change ${change >= 0 ? 'positive' : 'negative'}`;
+          changeEl.textContent = `${change >= 0 ? 'Up Arrow' : 'Down Arrow'} ${Math.abs(change).toFixed(2)}%`;
+        }
+      };
+    }
+
+    // === CHART & DATA ===
     function createChart(panelId) {
       const el = document.getElementById(`chart-${panelId}`);
       const dark = document.documentElement.dataset.theme === 'dark';
@@ -206,59 +302,95 @@
       const vol = chart.addHistogramSeries({ color: '#26a69a', priceScaleId: 'volume' });
       chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
 
-      charts[panelId] = { chart, main, vol, symbol: 'BTCUSDT', tf: '1m', data: [] };
-      panels.set(el.closest('.chart-panel'), panelId);
-
+      charts[panelId] = { chart, main, vol, data: [], symbol: currentSymbol, tf: currentTF };
       new ResizeObserver(() => chart.applyOptions({ width: el.clientWidth, height: el.clientHeight })).observe(el);
-      fetchData(panelId, 'BTCUSDT', '1m');
-      return chart;
+      fetchHistorical(panelId);
     }
 
-    // === DATA & WS ===
-    async function fetchData(id, symbol, tf) {
-      const d = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${tf}&limit=500`).then(r=>r.json());
-      const data = d.map(k => ({ time: k[0]/1000, open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
-      const c = charts[id];
+    async function fetchHistorical(panelId) {
+      const c = charts[panelId];
+      setStatus(`Loading ${c.symbol} ${c.tf}...`, 'info');
+      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${c.symbol}&interval=${c.tf}&limit=500`);
+      const d = await res.json();
+      const data = d.map(k => ({ time: Math.floor(k[0]/1000), open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
       c.data = data; c.main.setData(data);
-      c.vol.setData(data.map(p=>({time:p.time,value:p.volume,color:p.close>=p.open?'rgba(0,255,136,0.5)':'rgba(255,59,92,0.5)'})));
-      updatePrice(p.close);
+      c.vol.setData(data.map(p => ({ time: p.time, value: p.volume, color: p.close >= p.open ? 'rgba(0,255,136,0.5)' : 'rgba(255,59,92,0.5)' })));
+      updatePrice(data.at(-1).close);
+      setStatus(`LIVE • ${c.symbol} ${c.tf}`, 'live');
+      connectKlineWS(panelId);
     }
 
-    function connectWS() {
-      if (tickerWs) tickerWs.close();
-      const streams = ['!ticker@arr'];
-      tickerWs = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams.join('/')}`);
-      tickerWs.onmessage = e => {
-        const d = JSON.parse(e.data).data;
-        d.forEach(t => {
-          const el = document.getElementById(`ticker-${t.s}`);
-          if (el) {
-            const price = +t.c, change = +t.P;
-            el.querySelector('.ticker-price').textContent = `$${price.toFixed(2)}`;
-            el.querySelector('.ticker-price').className = `ticker-price ${price > +el.dataset.prev ? 'price-up' : 'price-down'}`;
-            el.dataset.prev = price;
-            el.querySelector('.ticker-change').textContent = `${change>0?'Up Arrow':'Down Arrow'} ${Math.abs(change).toFixed(2)}%`;
-          }
-        });
+    function connectKlineWS(panelId) {
+      const c = charts[panelId];
+      if (klineWs) klineWs.close();
+      const stream = `${c.symbol.toLowerCase()}@kline_${c.tf}`;
+      klineWs = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
+      klineWs.onopen = () => setStatus(`LIVE • ${c.symbol} ${c.tf}`, 'live');
+      klineWs.onmessage = e => {
+        const d = JSON.parse(e.data).k;
+        if (!d.x) return;
+        const candle = { time: Math.floor(d.t/1000), open: +d.o, high: +d.h, low: +d.l, close: +d.c, volume: +d.v };
+        c.data.push(candle); if (c.data.length > 500) c.data.shift();
+        c.main.update(candle);
+        updatePrice(+d.c);
+        updateIndicators(panelId, candle);
       };
     }
 
-    // === LAYOUT SYSTEM ===
+    // === INDICATORS ===
+    function addIndicator(panelId, name) {
+      const c = charts[panelId];
+      if (c.indicators?.[name]) return;
+      let series;
+      if (name === 'sma') series = c.chart.addLineSeries({ color: '#ffd700' });
+      else if (name === 'ema') series = c.chart.addLineSeries({ color: '#ff8800' });
+      else if (name === 'rsi') series = c.chart.addLineSeries({ color: '#aa00ff', priceScaleId: 'rsi' });
+      const calc = new IndicatorCalc(name, c.data, series);
+      if (!c.indicators) c.indicators = {};
+      c.indicators[name] = { series, calc };
+      calc.recalc();
+    }
+
+    function updateIndicators(panelId, candle) {
+      const c = charts[panelId];
+      Object.values(c.indicators || {}).forEach(i => i.calc.update(candle));
+    }
+
+    class IndicatorCalc {
+      constructor(name, data, series) { this.name = name; this.data = data; this.series = series; }
+      update(c) { this.data.push(c); if (this.data.length > 500) this.data.shift(); this.recalc(); }
+      recalc() {
+        const closes = this.data.map(d => d.close);
+        if (this.name === 'sma') {
+          const v = closes.map((_, i) => i < 19 ? null : closes.slice(i-19, i+1).reduce((a,b)=>a+b,0)/20);
+          this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] })));
+        }
+      }
+    }
+
+    // === UI ===
+    function setStatus(m, t='info') {
+      const e = document.getElementById('status');
+      e.textContent = m; e.className = `status ${t}`;
+    }
+    function updatePrice(p) {
+      document.getElementById('price').textContent = `$${p.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+    }
+
+    // === LAYOUT ===
     function setLayout(count) {
       const container = document.getElementById('layoutContainer');
       container.innerHTML = '';
       for (let i = 1; i <= count; i++) {
         const panel = document.createElement('div');
-        panel.className = 'chart-panel';
-        panel.dataset.id = i;
+        panel.className = 'chart-panel'; panel.dataset.id = i;
         panel.innerHTML = `
           <div class="chart-header">
             <div class="chart-controls">
-              <div class="dropdown"><button class="dropdown-btn"><span class="symbol">BTC/USDT</span></button><div class="dropdown-content"><input class="search-box" placeholder="Search..."><div class="dropdown-list" data-panel="${i}"></div></div></div>
-              <div class="dropdown"><button class="dropdown-btn"><span class="tf">1m</span></button><div class="dropdown-content">
+              <div class="dropdown"><button class="dropdown-btn"><span class="symbol">${currentSymbol.replace('USDT','')}/USDT</span></button><div class="dropdown-content"><input class="search-box"><div class="dropdown-list" data-panel="${i}"></div></div></div>
+              <div class="dropdown"><button class="dropdown-btn"><span class="tf">${currentTF}</span></button><div class="dropdown-content">
                 <div class="dropdown-item active" data-tf="1m">1m</div><div class="dropdown-item" data-tf="5m">5m</div><div class="dropdown-item" data-tf="1h">1h</div><div class="dropdown-item" data-tf="1d">1d</div>
               </div></div>
-              <div class="dropdown"><button class="dropdown-btn">Indicators</button><div class="dropdown-content"><div class="indicator-list" data-panel="${i}"></div></div></div>
             </div>
             <button class="btn" onclick="removeChart(this)">X</button>
           </div>
@@ -266,9 +398,7 @@
         `;
         container.appendChild(panel);
         createChart(i);
-        initPanelDropdowns(panel);
       }
-      layouts.current = count;
     }
 
     function removeChart(btn) {
@@ -280,59 +410,114 @@
       if (Object.keys(charts).length === 0) setLayout(1);
     }
 
-    // === INDICATORS (100+ via class) ===
-    const indicatorDefs = [
-      {id:'sma',name:'SMA',calc:(d,p)=>sma(d.close,p)},
-      {id:'ema',name:'EMA',calc:(d,p)=>ema(d.close,p)},
-      {id:'rsi',name:'RSI',calc:(d,p)=>rsi(d.close,p)},
-      {id:'macd',name:'MACD',calc:(d)=>macd(d.close)},
-      {id:'bollinger',name:'Bollinger',calc:(d,p,k)=>bollinger(d.close,p,k)},
-      // ... add 95+ more via Pine-like registry
-    ];
-
-    function addIndicator(panelId, def) {
-      const c = charts[panelId];
-      if (!c.indicators) c.indicators = {};
-      if (c.indicators[def.id]) return;
-      const series = c.chart.addLineSeries({ color: def.color || '#ffd700' });
-      const values = def.calc(c.data);
-      series.setData(c.data.map((d,i)=>({time:d.time,value:values[i]})));
-      c.indicators[def.id] = { series, def };
+    // === BACKTEST ===
+    function startBacktest() {
+      const data = charts['1'].data;
+      if (data.length < 10) return;
+      isBacktesting = true; backtestIndex = 0;
+      document.getElementById('pauseBacktest').disabled = false;
+      document.getElementById('startBacktest').disabled = true;
+      if (klineWs) klineWs.close();
+      runBacktestStep(data);
     }
 
-    // === SYNC ===
-    function syncCharts() {
-      if (syncMode.value === 'none') return;
-      const ref = Object.values(charts)[0];
-      Object.values(charts).forEach(c => {
-        if (c === ref) return;
-        if (syncMode.value.includes('symbol')) c.symbol = ref.symbol;
-        if (syncMode.value.includes('timeframe')) c.tf = ref.tf;
-        fetchData(c.panelId, c.symbol, c.tf);
-      });
+    function runBacktestStep(data) {
+      if (backtestIndex >= data.length) { endBacktest(data); return; }
+      const candle = data[backtestIndex];
+      charts['1'].main.setData(data.slice(0, backtestIndex + 1));
+      updatePrice(candle.close);
+      backtestIndex++;
+      const prog = (backtestIndex / data.length) * 100;
+      document.getElementById('backtestSlider').value = prog;
+      document.getElementById('backtestProgress').textContent = `${Math.round(prog)}%`;
+      if (isBacktesting) backtestInterval = setTimeout(() => runBacktestStep(data), 50);
+    }
+
+    function endBacktest(data) {
+      isBacktesting = false;
+      const first = data[0].close, last = data.at(-1).close;
+      const change = ((last - first) / first) * 100;
+      const res = document.getElementById('backtestResults');
+      res.style.display = 'block';
+      res.innerHTML = `<h3>Backtest Complete</h3><p>Change: <span class="${change >= 0 ? 'price-up' : 'price-down'}">${change.toFixed(2)}%</span></p>`;
     }
 
     // === INIT ===
     document.addEventListener('DOMContentLoaded', () => {
+      initTicker();
       setLayout(1);
-      connectWS();
+      connectTickerWS();
+
+      // Dropdowns
+      document.querySelectorAll('.dropdown-btn').forEach(btn => {
+        btn.onclick = e => {
+          e.stopPropagation();
+          const content = btn.nextElementSibling;
+          document.querySelectorAll('.dropdown-content').forEach(c => c !== content && c.classList.remove('show'));
+          content.classList.toggle('show');
+        };
+      });
+      document.addEventListener('click', () => document.querySelectorAll('.dropdown-content').forEach(c => c.classList.remove('show')));
+
+      // Modals
+      document.getElementById('chartSettingsBtn').onclick = () => document.getElementById('settingsModal').style.display = 'flex';
+      document.getElementById('closeModal').onclick = () => document.getElementById('settingsModal').style.display = 'none';
       document.getElementById('layoutSettings').onclick = () => document.getElementById('layoutModal').style.display = 'flex';
       document.getElementById('closeLayout').onclick = () => document.getElementById('layoutModal').style.display = 'none';
-      document.querySelectorAll('.layout-btn').forEach(b=>b.onclick=()=>document.querySelectorAll('.layout-btn').forEach(x=>x.classList.remove('active'))||b.classList.add('active'));
+
+      // Layout
+      document.querySelectorAll('.layout-btn').forEach(b => b.onclick = () => {
+        document.querySelectorAll('.layout-btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+      });
       document.getElementById('applyLayout').onclick = () => {
         const count = document.querySelector('.layout-btn.active').dataset.layout;
-        syncMode.value = document.getElementById('syncMode').value;
+        syncMode = document.getElementById('syncMode').value;
         setLayout(+count);
         document.getElementById('layoutModal').style.display = 'none';
       };
-    });
 
-    // === Helper Calcs (shortened) ===
-    function sma(arr,p){ const r=[]; for(let i=0;i<arr.length;i++) r.push(i<p-1?null:arr.slice(i-p+1,i+1).reduce((a,b)=>a+b,0)/p); return r; }
-    function ema(arr,p){ const k=2/(p+1),r=[arr[0]]; for(let i=1;i<arr.length;i++) r.push(arr[i]*k + r[i-1]*(1-k)); return r; }
-    function rsi(arr,p){ const r=[],u=[],d=[]; for(let i=1;i<arr.length;i++){ const diff=arr[i]-arr[i-1]; u.push(diff>0?diff:0); d.push(diff<0?-diff:0); if(i>=p) r.push(100-100/(1+(u.slice(-p).reduce((a,b)=>a+b)/p)/(d.slice(-p).reduce((a,b)=>a+b)/p))); else r.push(null); } return r; }
-    function macd(arr){ const f=ema(arr,12),s=ema(arr,26),m=f.map((v,i)=>v-s[i]); const sig=ema(m.filter(v=>v),9); return m.map((v,i)=>v-sig[i]); }
-    function bollinger(arr,p,k){ const ma=sma(arr,p),std=arr.map((v,i)=>i<p-1?null:Math.sqrt(arr.slice(i-p+1,i+1).reduce((a,b)=>a+Math.pow(b-ma[i],2),0)/p)); return {upper:ma.map((v,i)=>v+k*std[i]),middle:ma,lower:ma.map((v,i)=>v-k*std[i])}; }
+      // Backtest
+      document.getElementById('startBacktest').onclick = startBacktest;
+      document.getElementById('pauseBacktest').onclick = () => { isBacktesting = false; clearTimeout(backtestInterval); document.getElementById('pauseBacktest').disabled = true; document.getElementById('startBacktest').disabled = false; };
+      document.getElementById('resetBacktest').onclick = () => {
+        isBacktesting = false; clearTimeout(backtestInterval);
+        document.getElementById('backtestSlider').value = 0;
+        document.getElementById('backtestProgress').textContent = '0%';
+        document.getElementById('backtestResults').style.display = 'none';
+        fetchHistorical('1');
+        connectTickerWS();
+      };
+
+      // Trading
+      document.getElementById('buyButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
+      document.getElementById('sellButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
+      document.getElementById('connectWallet').onclick = async () => {
+        if (window.ethereum) {
+          try {
+            const acc = await window.ethereum.request({ method: 'eth_requestAccounts' });
+            setStatus(`Wallet: ${acc[0].slice(0,8)}...`, 'live');
+            document.getElementById('connectWallet').textContent = `${acc[0].slice(0,6)}...`;
+          } catch { setStatus('Wallet failed', 'error'); }
+        } else setStatus('Install MetaMask', 'error');
+      };
+
+      // Theme
+      const toggle = document.getElementById('themeToggle');
+      const saved = localStorage.getItem('theme') || 'dark';
+      document.documentElement.dataset.theme = saved;
+      toggle.textContent = saved === 'dark' ? 'Light' : 'Dark';
+      toggle.onclick = () => {
+        const newTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
+        document.documentElement.dataset.theme = newTheme;
+        localStorage.setItem('theme', newTheme);
+        toggle.textContent = newTheme === 'dark' ? 'Light' : 'Dark';
+        Object.values(charts).forEach(c => c.chart.applyOptions({
+          layout: { textColor: newTheme === 'dark' ? '#e0e0ff' : '#212529' },
+          grid: { vertLines: { color: `var(--grid)` }, horzLines: { color: `var(--grid)` } }
+        }));
+      };
+    });
   </script>
 </body>
 </html>
