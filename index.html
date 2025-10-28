@@ -5,92 +5,100 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>DJG ELITE TVIEW</title>
 
-  <!-- Lightweight Charts v4 -->
-  <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+  <!-- Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts@3.8.0/dist/lightweight-charts.standalone.production.js"></script>
   <!-- Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
   <style>
     :root[data-theme="dark"] {
-      --bg:#0f0f1a;--card:#1a1b2f;--text:#e0e0ff;--green:#00ff88;--red:#ff3b5c;--accent:#00d4ff;--gold:#ffd700;--purple:#aa00ff;--orange:#ff8800;
-      --grid:rgba(255,255,255,0.1);--border:rgba(255,255,255,0.2);--shadow:0 8px 32px rgba(0,0,0,0.4);--glass:rgba(255,255,255,0.05);
+      --bg: #0f0f1a; --card: #1a1b2f; --text: #e0e0ff; --green: #00ff88; --red: #ff3b5c;
+      --accent: #00d4ff; --gold: #ffd700; --purple: #aa00ff; --orange: #ff8800; --grid: rgba(255,255,255,0.1);
+      --border: rgba(255,255,255,0.2); --shadow: 0 8px 32px rgba(0,0,0,0.4); --glass: rgba(255,255,255,0.05);
     }
     :root[data-theme="light"] {
-      --bg:#f8f9fa;--card:#fff;--text:#212529;--green:#28a745;--red:#dc3545;--accent:#007bff;--gold:#ffc107;--purple:#6f42c1;--orange:#fd7e14;
-      --grid:rgba(0,0,0,0.1);--border:rgba(0,0,0,0.1);--shadow:0 8px 32px rgba(0,0,0,0.12);--glass:rgba(0,0,0,0.03);
+      --bg: #f8f9fa; --card: #ffffff; --text: #212529; --green: #28a745; --red: #dc3545;
+      --accent: #007bff; --gold: #ffc107; --purple: #6f42c1; --orange: #fd7e14; --grid: rgba(0,0,0,0.1);
+      --border: rgba(0,0,0,0.1); --shadow: 0 8px 32px rgba(0,0,0,0.12); --glass: rgba(0,0,0,0.03);
     }
-    *{margin:0;padding:0;box-sizing:border-box;}
-    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:12px;min-height:100vh;}
-    .container{max-width:1600px;margin:0 auto;}
-    .header{text-align:center;margin-bottom:16px;padding:20px;background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);}
-    h1{font-size:clamp(1.4rem,5vw,2rem);font-weight:800;background:linear-gradient(90deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
-    .price{font-size:2.5rem;font-weight:900;margin:12px 0;color:var(--accent);}
-    .status{font-size:0.9rem;margin:8px 0;padding:6px 12px;border-radius:20px;background:var(--glass);display:inline-block;}
-    .status.live{background:rgba(0,255,136,0.1);color:var(--green);}
-    .status.error{background:rgba(255,59,92,0.1);color:var(--red);}
-    .status.info{background:rgba(0,212,255,0.1);color:var(--accent);}
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; padding:12px; min-height:100vh; }
+    .container { max-width:1400px; margin:0 auto; }
+    .header { text-align:center; margin-bottom:16px; padding:20px; background:var(--card); border-radius:16px; border:1px solid var(--border); box-shadow:var(--shadow); }
+    h1 { font-size:clamp(1.4rem,5vw,2rem); font-weight:800; background:linear-gradient(90deg,var(--green),var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:10px; }
+    .price { font-size:2.5rem; font-weight:900; margin:12px 0; color:var(--accent); }
+    .status { font-size:0.9rem; margin:8px 0; padding:6px 12px; border-radius:20px; background:var(--glass); display:inline-block; }
+    .status.live { background:rgba(0,255,136,0.1); color:var(--green); }
+    .status.error { background:rgba(255,59,92,0.1); color:var(--red); }
+    .status.info { background:rgba(0,212,255,0.1); color:var(--accent); }
 
-    .trading-actions{display:flex;gap:8px;margin:12px 0;justify-content:center;flex-wrap:nowrap;}
-    .btn-buy,.btn-sell,.btn-wallet{padding:8px 16px;font-size:0.9rem;font-weight:700;flex:1;max-width:120px;border:none;border-radius:8px;color:#fff;cursor:pointer;transition:all .3s;}
-    .btn-buy{background:var(--green);}
-    .btn-sell{background:var(--red);}
-    .btn-wallet{background:var(--purple);}
-    .btn{background:var(--accent);max-width:160px;}
-    .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
+    .trading-actions {
+      display: flex; gap: 8px; margin: 12px 0; justify-content: center; align-items: center; flex-wrap: nowrap; width: 100%;
+    }
+    .btn-buy { background: var(--green); padding: 8px 16px; font-size: 0.9rem; font-weight: 700; flex: 1; max-width: 120px; }
+    .btn-sell { background: var(--red); padding: 8px 16px; font-size: 0.9rem; font-weight: 700; flex: 1; max-width: 120px; }
+    .btn-wallet { background: var(--purple); padding: 8px 16px; font-size: 0.9rem; font-weight: 700; flex: 1; max-width: 160px; }
+    .btn { padding:8px 16px; border:none; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; transition:all 0.3s ease; font-size:0.9rem; }
+    .btn:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,212,255,0.3); }
 
-    .layout-controls{display:flex;gap:8px;margin:16px 0;justify-content:center;flex-wrap:wrap;}
-    .layout-btn{padding:6px 12px;background:var(--glass);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;}
-    .layout-btn.active{background:var(--accent);color:#fff;}
+    .chart-container { height:500px; background:var(--card); border-radius:16px; margin:20px 0; border:1px solid var(--border); position:relative; overflow:hidden; box-shadow:var(--shadow); margin-bottom:80px; }
+    .chart-header { position: absolute; top: 0; left: 0; right: 0; background: var(--glass); padding: 10px 15px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 10; }
+    .chart-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-btn { padding: 6px 12px; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; min-width: 100px; justify-content: space-between; font-size: 0.85rem; }
+    .dropdown-btn::after { content: "Down Arrow"; margin-left: 4px; font-size: 0.8em; }
+    .dropdown-content { display: none; position: absolute; background: var(--card); min-width: 180px; box-shadow: var(--shadow); border-radius: 8px; border: 1px solid var(--border); z-index: 1000; max-height: 300px; overflow-y: auto; }
+    .dropdown-content.show { display: block; }
+    .dropdown-item { padding: 8px 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background 0.2s; font-size: 0.85rem; }
+    .dropdown-item:hover { background: var(--accent); color: white; }
+    .dropdown-item.active { background: var(--green); color: white; }
+    .dropdown-item:last-child { border-bottom: none; }
+    .search-box { padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--glass); color: var(--text); width: 160px; margin: 5px; font-size: 0.85rem; }
 
-    .layout-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:16px;margin:20px 0;}
-    .chart-panel{background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;flex-direction:column;}
-    .chart-header{position:sticky;top:0;background:var(--glass);padding:10px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;z-index:10;gap:8px;flex-wrap:wrap;}
-    .chart-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-    .dropdown{position:relative;display:inline-block;}
-    .dropdown-btn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;min-width:90px;justify-content:space-between;font-size:0.85rem;}
-    .dropdown-content{display:none;position:absolute;background:var(--card);min-width:180px;box-shadow:var(--shadow);border-radius:8px;border:1px solid var(--border);z-index:1000;max-height:300px;overflow-y:auto;}
-    .dropdown-content.show{display:block;}
-    .dropdown-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s;font-size:0.85rem;}
-    .dropdown-item:hover{background:var(--accent);color:#fff;}
-    .dropdown-item.active{background:var(--green);color:#fff;}
-    .search-box{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--glass);color:var(--text);width:150px;font-size:0.85rem;}
+    .asset-ticker { position: absolute; bottom: 0; left: 0; right: 0; background: var(--card); border-top: 1px solid var(--border); padding: 6px 0; overflow: hidden; z-index: 10; height: 35px; }
+    .ticker-container { position: relative; width: 100%; height: 100%; overflow: hidden; }
+    .ticker-content { display: flex; gap: 30px; position: absolute; white-space: nowrap; padding-right: 30px; }
+    .ticker-item { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .ticker-symbol { font-weight: 600; color: var(--accent); min-width: 40px; font-size: 0.8rem; }
+    .ticker-price { font-weight: 600; min-width: 70px; transition: color 0.5s ease; font-size: 0.8rem; }
+    .ticker-change { font-weight: 600; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; min-width: 55px; text-align: center; }
+    .ticker-change.positive { background: var(--green); color: #000; }
+    .ticker-change.negative { background: var(--red); color: #fff; }
+    .price-up { color: var(--green); }
+    .price-down { color: var(--red); }
 
-    .chart-body{flex:1;position:relative;}
-    .chart{width:100%;height:100%;}
+    .backtest-controls { display:flex; gap:10px; margin:20px 0; flex-wrap:wrap; align-items:center; position: relative; z-index: 1; }
+    .backtest-slider { flex:1; max-width:400px; height:6px; border-radius:3px; background:var(--glass); outline:none; }
 
-    .ticker-bar{background:var(--card);border-top:1px solid var(--border);padding:6px 0;overflow:hidden;height:35px;}
-    .ticker-content{display:flex;gap:30px;white-space:nowrap;animation:ticker-scroll 60s linear infinite;}
-    @keyframes ticker-scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
-    .ticker-item{display:flex;align-items:center;gap:6px;flex-shrink:0;}
-    .ticker-symbol{font-weight:600;color:var(--accent);font-size:0.8rem;}
-    .ticker-price{font-weight:600;transition:color .5s;font-size:0.8rem;}
-    .ticker-change{font-weight:600;padding:2px 6px;border-radius:4px;font-size:0.7rem;}
-    .ticker-change.positive{background:var(--green);color:#000;}
-    .ticker-change.negative{background:var(--red);color:#fff;}
-    .price-up{color:var(--green);}
-    .price-down{color:var(--red);}
+    .theme-toggle { position:fixed; top:20px; right:20px; padding:10px 16px; background:var(--accent); color:#fff; border:none; border-radius:10px; cursor:pointer; z-index:1000; font-weight:600; transition:all 0.3s ease; font-size:0.9rem; }
+    .theme-toggle:hover { transform:translateY(-2px); box-shadow:0 4px 12px rgba(0,212,255,0.3); }
 
-    .backtest-controls{display:flex;gap:10px;margin:20px 0;flex-wrap:wrap;align-items:center;justify-content:center;}
-    .backtest-slider{flex:1;max-width:400px;height:6px;border-radius:3px;background:var(--glass);outline:none;}
-    .backtest-results{background:var(--card);padding:20px;border-radius:12px;margin:20px 0;border:1px solid var(--border);box-shadow:var(--shadow);display:none;}
+    .footer { text-align:center; margin:30px 0 20px; font-size:0.9rem; color:var(--text); opacity:0.7; }
+    .backtest-results { background:var(--card); padding:20px; border-radius:12px; margin:20px 0; border:1px solid var(--border); box-shadow:var(--shadow); }
 
-    .theme-toggle{position:fixed;top:20px;right:20px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;z-index:1000;font-weight:600;font-size:0.9rem;}
-    .theme-toggle:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
+    #chart { width: 100%; height: calc(100% - 85px); background: transparent; margin-top: 45px; }
 
-    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;}
-    .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
-    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:10px;}
-    .modal-title{font-size:1.2rem;font-weight:600;}
-    .close-modal{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text);}
-    .setting-group{margin-bottom:15px;}
-    .setting-label{display:block;margin-bottom:5px;font-weight:500;}
-    .setting-input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--glass);color:var(--text);}
+    .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; align-items: center; justify-content: center; }
+    .modal-content { background: var(--card); padding: 20px; border-radius: 12px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+    .modal-title { font-size: 1.2rem; font-weight: 600; }
+    .close-modal { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text); }
+    .setting-group { margin-bottom: 15px; }
+    .setting-label { display: block; margin-bottom: 5px; font-weight: 500; }
+    .setting-input { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid var(--border); background: var(--glass); color: var(--text); }
 
     @media(max-width:768px){
-      .layout-container{grid-template-columns:1fr;}
-      .chart-header{flex-direction:column;gap:8px;}
-      .chart-controls{justify-content:center;}
-      .trading-actions{gap:6px;padding:0 10px;}
+      .chart-header { flex-direction: column; gap: 8px; }
+      .chart-controls { justify-content: center; }
+      .search-box { width: 140px; }
+      .chart-container{height:400px;}
+      .trading-actions { gap: 6px; padding: 0 10px; }
+      .btn-buy, .btn-sell { max-width: 100px; padding: 6px 12px; font-size: 0.85rem; }
+      .btn-wallet { max-width: 140px; padding: 6px 12px; font-size: 0.85rem; }
+    }
+    @media(max-width:480px){
+      .btn-buy, .btn-sell { max-width: 80px; padding: 5px 10px; font-size: 0.8rem; }
+      .btn-wallet { max-width: 120px; padding: 5px 10px; font-size: 0.8rem; }
     }
   </style>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -123,41 +131,20 @@
         </select>
       </div>
       <div class="setting-group">
+        <label class="setting-label">Theme</label>
+        <select class="setting-input" id="chartTheme">
+          <option value="dark">Dark</option>
+          <option value="light">Light</option>
+        </select>
+      </div>
+      <div class="setting-group">
         <label class="setting-label">Grid Lines</label>
         <select class="setting-input" id="gridLines">
           <option value="show">Show</option>
           <option value="hide">Hide</option>
         </select>
       </div>
-      <button class="btn" style="width:100%;margin-top:15px;" id="applySettings">Apply</button>
-    </div>
-  </div>
-
-  <!-- Layout Modal -->
-  <div class="modal" id="layoutModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <div class="modal-title">Layout & Sync</div>
-        <button class="close-modal" id="closeLayout">x</button>
-      </div>
-      <div class="setting-group">
-        <label class="setting-label">Layout</label>
-        <div class="layout-controls">
-          <button class="layout-btn active" data-layout="1">1 Chart</button>
-          <button class="layout-btn" data-layout="2">2 Charts</button>
-          <button class="layout-btn" data-layout="4">4 Charts</button>
-        </div>
-      </div>
-      <div class="setting-group">
-        <label class="setting-label">Sync</label>
-        <select class="setting-input" id="syncMode">
-          <option value="none">None</option>
-          <option value="symbol">Symbol</option>
-          <option value="timeframe">Timeframe</option>
-          <option value="all">All</option>
-        </select>
-      </div>
-      <button class="btn" style="width:100%;margin-top:15px;" id="applyLayout">Apply</button>
+      <button class="btn" style="width:100%; margin-top:15px;" id="applySettings">Apply Settings</button>
     </div>
   </div>
 
@@ -173,282 +160,430 @@
       </div>
     </div>
 
-    <!-- Layout & Backtest Controls -->
-    <div style="text-align:center;margin:16px 0;">
-      <button class="btn" id="layoutSettings">Layout</button>
-      <button class="btn" id="saveLayout">Save Layout</button>
-      <button class="btn" id="loadLayout">Load Layout</button>
-      <button class="btn" id="chartSettingsBtn">Settings</button>
-    </div>
-
-    <!-- Multi-Chart Layout -->
-    <div class="layout-container" id="layoutContainer">
-      <div class="chart-panel" data-id="1">
-        <div class="chart-header">
-          <div class="chart-controls">
-            <div class="dropdown">
-              <button class="dropdown-btn" id="symbolsBtn"><span id="currentSymbol">BTC/USDT</span></button>
-              <div class="dropdown-content" id="symbolDropdown">
-                <input type="text" class="search-box" placeholder="Search symbols..." id="symbolSearch">
-                <div class="dropdown-list" id="symbolList"></div>
-              </div>
+    <div class="chart-container">
+      <div class="chart-header">
+        <div class="chart-controls lubricating">
+          <div class="dropdown">
+            <button class="dropdown-btn" id="symbolsBtn"><span id="currentSymbol">BTC/USDT</span></button>
+            <div class="dropdown-content" id="symbolDropdown">
+              <input type="text" class="search-box" placeholder="Search symbols..." id="symbolSearchHeader">
+              <div class="dropdown-list" id="symbolList"></div>
             </div>
-            <div class="dropdown">
-              <button class="dropdown-btn" id="timeframeBtn"><span id="currentTimeframe">1m</span></button>
-              <div class="dropdown-content" id="timeframeDropdown">
-                <div class="dropdown-item active" data-tf="1m">1 Minute</div>
-                <div class="dropdown-item" data-tf="3m">3 Minutes</div>
-                <div class="dropdown-item" data-tf="5m">5 Minutes</div>
-                <div class="dropdown-item" data-tf="15m">15 Minutes</div>
-                <div class="dropdown-item" data-tf="1h">1 Hour</div>
-                <div class="dropdown-item" data-tf="1d">1 Day</div>
-              </div>
+          </div>
+          <div class="dropdown">
+            <button class="dropdown-btn" id="timeframeBtn"><span id="currentTimeframe">1m</span></button>
+            <div class="dropdown-content" id="timeframeDropdown">
+              <div class="dropdown-item active" data-tf="1m">1 Minute</div>
+              <div class="dropdown-item" data-tf="3m">3 Minutes</div>
+              <div class="dropdown-item" data-tf="5m">5 Minutes</div>
+              <div class="dropdown-item" data-tf="15m">15 Minutes</div>
+              <div class="dropdown-item" data-tf="30m">30 Minutes</div>
+              <div class="dropdown-item" data-tf="1h">1 Hour</div>
+              <div class="dropdown-item" data-tf="2h">2 Hours</div>
+              <div class="dropdown-item" data-tf="4h">4 Hours</div>
+              <div class="dropdown-item" data-tf="1d">1 Day</div>
+              <div class="dropdown-item" data-tf="1w">1 Week</div>
             </div>
-            <div class="dropdown">
-              <button class="dropdown-btn">Indicators</button>
-              <div class="dropdown-content">
-                <input type="text" class="search-box" placeholder="Search indicators..." id="indicatorSearch">
-                <div class="dropdown-list" id="indicatorList">
-                  <div class="dropdown-item" data-indicator="sma">SMA</div>
-                  <div class="dropdown-item" data-indicator="ema">EMA</div>
-                  <div class="dropdown-item" data-indicator="rsi">RSI</div>
-                  <div class="dropdown-item" data-indicator="macd">MACD</div>
-                  <div class="dropdown-item" data-indicator="bollinger">Bollinger</div>
-                </div>
+          </div>
+          <div class="dropdown">
+            <button class="dropdown-btn" id="indicatorsBtn"><span id="currentIndicators">Indicators</span></button>
+            <div class="dropdown-content" id="indicatorsDropdown">
+              <input type="text" class="search-box" placeholder="Search indicators..." id="indicatorSearch">
+              <div class="dropdown-list" id="indicatorList">
+                <div class="dropdown-item" data-indicator="sma">SMA - Simple Moving Average</div>
+                <div class="dropdown-item" data-indicator="ema">EMA - Exponential Moving Average</div>
+                <div class="dropdown-item" data-indicator="rsi">RSI - Relative Strength Index</div>
+                <div class="dropdown-item" data-indicator="macd">MACD - Moving Average Convergence Divergence</div>
+                <div class="dropdown-item" data-indicator="bollinger">Bollinger Bands</div>
+                <div class="dropdown-item" data-indicator="stochastic">Stochastic Oscillator</div>
+                <div class="dropdown-item" data-indicator="atr">ATR - Average True Range</div>
+                <div class="dropdown-item" data-indicator="volume">Volume</div>
+                <div class="dropdown-item" data-indicator="vwap">VWAP - Volume Weighted Average Price</div>
+                <div class="dropdown-item" data-indicator="ichimoku">Ichimoku Cloud</div>
               </div>
             </div>
           </div>
-          <button class="btn" onclick="removeChart(this)">X</button>
+          <div class="dropdown">
+            <button class="dropdown-btn" id="drawingBtn"><span id="currentTool">Drawing</span></button>
+            <div class="dropdown-content" id="drawingDropdown">
+              <div class="dropdown-item" data-tool="trendline">Trendline</div>
+              <div class="dropdown-item" data-tool="horizontal">Horizontal Line</div>
+              <div class="dropdown-item" data-tool="vertical">Vertical Line</div>
+              <div class="dropdown-item" data-tool="fibonacci">Fibonacci Retracement</div>
+              <div class="dropdown-item" data-tool="rectangle">Rectangle</div>
+              <div class="dropdown-item" data-tool="ellipse">Ellipse</div>
+              <div class="dropdown-item" data-tool="pitchfork">Pitchfork</div>
+              <div class="dropdown-item" data-tool="text">Text</div>
+            </div>
+          </div>
         </div>
-        <div class="chart-body"><div class="chart" id="chart-1"></div></div>
+        <div class="chart-controls">
+          <button class="btn" id="chartSettings">Settings</button>
+        </div>
+      </div>
+      <div id="chart"></div>
+      <div class="asset-ticker">
+        <div class="ticker-container">
+          <div class="ticker-content" id="tickerContent"></div>
+        </div>
       </div>
     </div>
 
-    <!-- Backtest -->
     <div class="backtest-controls">
       <button class="btn" id="startBacktest">Backtest</button>
       <button class="btn" id="pauseBacktest" disabled>Pause</button>
-      <input type="range" class="backtest-slider" id="backtestSlider" min="0" max="100" value="0">
-      <span id="backtestProgress">0%</span>
+      <input type="range" class="backtest-slider" id="backtestSlider" min="0" max="100" value="0" step="0.1">
+      <span id="backtestProgress" style="min-width:60px;">0%</span>
       <button class="btn" id="resetBacktest">Reset</button>
     </div>
-    <div id="backtestResults" class="backtest-results"></div>
+    <div id="backtestResults" class="backtest-results" style="display:none"></div>
 
-    <!-- Ticker -->
-    <div class="ticker-bar">
-      <div class="ticker-content" id="tickerContent"></div>
-    </div>
-
-    <div class="footer" style="text-align:center;margin:30px 0 20px;font-size:0.9rem;color:var(--text);opacity:0.7;">
-      DJG ELITE TVIEW • Professional Trading Platform
+    <div class="footer">
+      <div>DJG ELITE TVIEW • Professional Trading Platform</div>
+      <div style="margin-top:8px; font-size:0.8rem;">Secure • Fast • Web3 Ready</div>
     </div>
   </div>
 
   <script>
-    // === CORE STATE ===
-    let currentSymbol = 'BTCUSDT', currentTF = '1m';
-    let klineWs = null, tickerWs = null;
-    let historicalData = [], isBacktesting = false, backtestIndex = 0, backtestInterval;
-    let charts = {}, indicators = {}, activePanel = '1';
-    let syncMode = 'none';
-    const popularSymbols = ['BTCUSDT','ETHUSDT','BNBUSDT','ADAUSDT','SOLUSDT','XRPUSDT'];
+    // =============================================
+    // DJG ELITE TVIEW v3.0 – FINAL & BUG-FREE
+    // =============================================
 
-    // === TICKER ===
-    function initTicker() {
+    let chart, mainSeries, volumeSeries;
+    let currentSymbol = 'BTCUSDT', currentTF = '1m';
+    let historicalData = [], isBacktesting = false;
+    let backtestIndex = 0, backtestInterval;
+    let klineWs = null, tickerWs = null;
+    let indicators = {};
+    let currentChartType = 'candlestick';
+    let tickerStyleAdded = false;
+
+    const popularSymbols = ['BTCUSDT','ETHUSDT','BNBUSDT','ADAUSDT','SOLUSDT','XRPUSDT','DOTUSDT','DOGEUSDT'];
+    const assetData = popularSymbols.map(s => ({symbol:s,price:0,change:0,prevPrice:0}));
+
+    // ---------- TICKER ----------
+    function initializeAssetTicker() {
       const content = document.getElementById('tickerContent');
       content.innerHTML = '';
-      popularSymbols.forEach(s => {
+      assetData.forEach(a => {
         const el = document.createElement('div');
-        el.className = 'ticker-item'; el.id = `ticker-${s}`;
-        el.innerHTML = `<span class="ticker-symbol">${s.replace('USDT','')}</span><span class="ticker-price">$0.00</span><span class="ticker-change">0.00%</span>`;
+        el.className = 'ticker-item'; el.id = `ticker-${a.symbol}`;
+        el.innerHTML = `<span class="ticker-symbol">${a.symbol.replace('USDT','')}</span><span class="ticker-price">$0.00</span><span class="ticker-change">0.00%</span>`;
         content.appendChild(el);
+      });
+      setTimeout(startTickerAnimation, 100);
+    }
+
+    function startTickerAnimation() {
+      if (tickerStyleAdded) return;
+      const content = document.getElementById('tickerContent');
+      const container = document.querySelector('.ticker-container');
+      const total = content.scrollWidth, width = container.clientWidth;
+      if (total <= width) return;
+      const dur = Math.max(30, total / 30);
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes ticker-scroll {0%{transform:translateX(100%)}100%{transform:translateX(-${total}px)}}
+        .ticker-content {animation: ticker-scroll ${dur}s linear infinite}
+      `;
+      document.head.appendChild(style);
+      tickerStyleAdded = true;
+    }
+
+    function updateTickerDisplay() {
+      assetData.forEach(a => {
+        const el = document.getElementById(`ticker-${a.symbol}`);
+        if (!el) return;
+        const priceEl = el.querySelector('.ticker-price');
+        const changeEl = el.querySelector('.ticker-change');
+        const fmt = a.price > 0 ? `$${a.price.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:a.price>1?2:4})}` : '$0.00';
+        priceEl.textContent = fmt;
+        priceEl.className = `ticker-price ${a.price > a.prevPrice ? 'price-up' : a.price < a.prevPrice ? 'price-down' : ''}`;
+        changeEl.className = `ticker-change ${a.change >= 0 ? 'positive' : 'negative'}`;
+        changeEl.innerHTML = `${a.change >= 0 ? 'Up Arrow' : 'Down Arrow'} ${Math.abs(a.change).toFixed(2)}%`;
       });
     }
 
-    function connectTickerWS() {
+    // ---------- WEBSOCKETS ----------
+    function connectKlineWebSocket(symbol, interval) {
+      if (klineWs) klineWs.close();
+      setStatus(`Connecting ${symbol} ${interval}...`, 'info');
+      const stream = `${symbol.toLowerCase()}@kline_${interval}`;
+      klineWs = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
+      klineWs.onopen = () => setStatus(`LIVE • ${symbol} ${interval}`, 'live');
+      klineWs.onmessage = e => {
+        const d = JSON.parse(e.data);
+        if (!d.k) return;
+        const k = d.k;
+        const c = { time: Math.floor(k.t/1000), open: +k.o, high: +k.h, low: +k.l, close: +k.c, volume: +k.v };
+        if (k.x) { historicalData.push(c); if (historicalData.length > 500) historicalData.shift(); }
+        if (mainSeries) mainSeries.update(c);
+        updatePriceDisplay(+k.c);
+        updateAllIndicators(c);
+      };
+      klineWs.onclose = () => { if (!isBacktesting) setTimeout(() => connectKlineWebSocket(symbol, interval), 3000); };
+    }
+
+    function connectTickerWebSocket() {
       if (tickerWs) tickerWs.close();
-      const streams = popularSymbols.map(s => `${s.toLowerCase()}@ticker`).join('/');
+      const streams = assetData.map(a => `${a.symbol.toLowerCase()}@ticker`).join('/');
       tickerWs = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams}`);
       tickerWs.onopen = () => console.log('Ticker WS open');
       tickerWs.onmessage = e => {
-        const m = JSON.parse(e.data).data;
-        if (!m) return;
-        const el = document.getElementById(`ticker-${m.s}`);
-        if (el) {
-          const price = +m.c, change = +m.P;
-          const priceEl = el.querySelector('.ticker-price');
-          priceEl.textContent = `$${price.toFixed(2)}`;
-          priceEl.className = `ticker-price ${price > +el.dataset.prev ? 'price-up' : price < +el.dataset.prev ? 'price-down' : ''}`;
-          el.dataset.prev = price;
-          const changeEl = el.querySelector('.ticker-change');
-          changeEl.className = `ticker-change ${change >= 0 ? 'positive' : 'negative'}`;
-          changeEl.textContent = `${change >= 0 ? 'Up Arrow' : 'Down Arrow'} ${Math.abs(change).toFixed(2)}%`;
-        }
+        const m = JSON.parse(e.data);
+        if (!m.data) return;
+        const s = m.data.s, p = +m.data.c, ch = +m.data.P;
+        const a = assetData.find(x => x.symbol === s);
+        if (a) { a.prevPrice = a.price; a.price = p; a.change = ch; updateTickerDisplay(); }
       };
+      tickerWs.onclose = () => setTimeout(connectTickerWebSocket, 5000);
     }
 
-    // === CHART & DATA ===
-    function createChart(panelId) {
-      const el = document.getElementById(`chart-${panelId}`);
+    // ---------- HISTORICAL DATA ----------
+    async function fetchHistoricalData(symbol, interval, limit = 500) {
+      setStatus('Loading history...', 'info');
+      const r = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${interval}&limit=${limit}`);
+      const d = await r.json();
+      historicalData = d.map(k => ({ time: Math.floor(k[0]/1000), open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
+      changeChartType(currentChartType);
+      if (historicalData.length) updatePriceDisplay(historicalData.at(-1).close);
+      setStatus(`LIVE • ${symbol} ${interval}`, 'live');
+      return true;
+    }
+
+    // ---------- CHART ----------
+    function initializeChart() {
+      const el = document.getElementById('chart');
       const dark = document.documentElement.dataset.theme === 'dark';
-      const chart = LightweightCharts.createChart(el, {
+      chart = LightweightCharts.createChart(el, {
         width: el.clientWidth, height: el.clientHeight,
         layout: { background: { color: 'transparent' }, textColor: dark ? '#e0e0ff' : '#212529' },
-        grid: { vertLines: { color: var(--grid) }, horzLines: { color: var(--grid) } },
-        timeScale: { timeVisible: true }
+        grid: { vertLines: { color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }, horzLines: { color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } },
+        timeScale: { timeVisible: true, secondsVisible: false }
       });
 
-      const main = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff3b5c' });
-      const vol = chart.addHistogramSeries({ color: '#26a69a', priceScaleId: 'volume' });
+      let resizeTO;
+      new ResizeObserver(() => {
+        clearTimeout(resizeTO);
+        resizeTO = setTimeout(() => chart.applyOptions({ width: el.clientWidth, height: el.clientHeight }), 50);
+      }).observe(el);
+
+      return true;
+    }
+
+    function changeChartType(type) {
+      if (!chart || !historicalData.length) return;
+      currentChartType = type;
+
+      // Remove old series
+      if (mainSeries) chart.removeSeries(mainSeries);
+      if (volumeSeries) chart.removeSeries(volumeSeries);
+
+      // Create new main series
+      if (type === 'line')
+        mainSeries = chart.addLineSeries({ color: '#00d4ff', lineWidth: 2 });
+      else if (type === 'area')
+        mainSeries = chart.addAreaSeries({ lineColor: '#00d4ff', topColor: 'rgba(0,212,255,0.4)', bottomColor: 'rgba(0,212,255,0.05)' });
+      else if (type === 'bars')
+        mainSeries = chart.addHistogramSeries({ color: '#00d4ff' });
+      else
+        mainSeries = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff3b5c', borderUpColor: '#00ff88', borderDownColor: '#ff3b5c', wickUpColor: '#00ff88', wickDownColor: '#ff3b5c' });
+
+      mainSeries.setData(historicalData);
+
+      // Recreate volume
+      volumeSeries = chart.addHistogramSeries({ color: '#26a69a', priceFormat: { type: 'volume' }, priceScaleId: 'volume' });
       chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
-
-      charts[panelId] = { chart, main, vol, data: [], symbol: currentSymbol, tf: currentTF };
-      new ResizeObserver(() => chart.applyOptions({ width: el.clientWidth, height: el.clientHeight })).observe(el);
-      fetchHistorical(panelId);
+      const vol = historicalData.map(c => ({ time: c.time, value: c.volume, color: c.close >= c.open ? 'rgba(0,255,136,0.5)' : 'rgba(255,59,92,0.5)' }));
+      volumeSeries.setData(vol);
     }
 
-    async function fetchHistorical(panelId) {
-      const c = charts[panelId];
-      setStatus(`Loading ${c.symbol} ${c.tf}...`, 'info');
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${c.symbol}&interval=${c.tf}&limit=500`);
-      const d = await res.json();
-      const data = d.map(k => ({ time: Math.floor(k[0]/1000), open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
-      c.data = data; c.main.setData(data);
-      c.vol.setData(data.map(p => ({ time: p.time, value: p.volume, color: p.close >= p.open ? 'rgba(0,255,136,0.5)' : 'rgba(255,59,92,0.5)' })));
-      updatePrice(data.at(-1).close);
-      setStatus(`LIVE • ${c.symbol} ${c.tf}`, 'live');
-      connectKlineWS(panelId);
+    // ---------- INDICATORS ----------
+    function updateAllIndicators(candle) {
+      Object.values(indicators).forEach(ind => ind.calc.update(candle));
     }
 
-    function connectKlineWS(panelId) {
-      const c = charts[panelId];
-      if (klineWs) klineWs.close();
-      const stream = `${c.symbol.toLowerCase()}@kline_${c.tf}`;
-      klineWs = new WebSocket(`wss://stream.binance.com:9443/ws/${stream}`);
-      klineWs.onopen = () => setStatus(`LIVE • ${c.symbol} ${c.tf}`, 'live');
-      klineWs.onmessage = e => {
-        const d = JSON.parse(e.data).k;
-        if (!d.x) return;
-        const candle = { time: Math.floor(d.t/1000), open: +d.o, high: +d.h, low: +d.l, close: +d.c, volume: +d.v };
-        c.data.push(candle); if (c.data.length > 500) c.data.shift();
-        c.main.update(candle);
-        updatePrice(+d.c);
-        updateIndicators(panelId, candle);
-      };
+    function removeIndicator(name) {
+      const ind = indicators[name];
+      if (!ind) return;
+      Object.values(ind.series).forEach(s => s && chart.removeSeries(s));
+      delete indicators[name];
     }
 
-    // === INDICATORS ===
-    function addIndicator(panelId, name) {
-      const c = charts[panelId];
-      if (c.indicators?.[name]) return;
+    function addIndicator(name) {
+      if (indicators[name]) { removeIndicator(name); return; }
       let series;
-      if (name === 'sma') series = c.chart.addLineSeries({ color: '#ffd700' });
-      else if (name === 'ema') series = c.chart.addLineSeries({ color: '#ff8800' });
-      else if (name === 'rsi') series = c.chart.addLineSeries({ color: '#aa00ff', priceScaleId: 'rsi' });
-      const calc = new IndicatorCalc(name, c.data, series);
-      if (!c.indicators) c.indicators = {};
-      c.indicators[name] = { series, calc };
-      calc.recalc();
+      if (name === 'sma') series = chart.addLineSeries({ color: '#ffd700', lineWidth: 2 });
+      else if (name === 'ema') series = chart.addLineSeries({ color: '#ff8800', lineWidth: 2 });
+      else if (name === 'rsi') series = chart.addLineSeries({ color: '#aa00ff', lineWidth: 2, priceScaleId: 'rsi' });
+      else if (name === 'macd') {
+        series = {
+          line: chart.addLineSeries({ color: '#00d4ff' }),
+          hist: chart.addHistogramSeries({ color: '#26a69a', priceScaleId: 'macd' }),
+          signal: chart.addLineSeries({ color: '#ff3b5c' })
+        };
+      }
+      else if (name === 'bollinger') {
+        series = {
+          upper: chart.addLineSeries({ color: '#00ff88' }),
+          middle: chart.addLineSeries({ color: '#ffd700' }),
+          lower: chart.addLineSeries({ color: '#ff3b5c' })
+        };
+      }
+      else if (name === 'stochastic') series = chart.addLineSeries({ color: '#ff8800', priceScaleId: 'stoch' });
+      else if (name === 'atr') series = chart.addLineSeries({ color: '#aa00ff', priceScaleId: 'atr' });
+      else if (name === 'vwap') series = chart.addLineSeries({ color: '#00d4ff', lineWidth: 2 });
+      else if (name === 'ichimoku') {
+        series = {
+          tenkan: chart.addLineSeries({ color: '#ff3b5c' }),
+          kijun: chart.addLineSeries({ color: '#00d4ff' }),
+          senkouA: chart.addLineSeries({ color: '#00ff88' }),
+          senkouB: chart.addLineSeries({ color: '#ff8800' }),
+          chikou: chart.addLineSeries({ color: '#aa00ff' })
+        };
+      }
+      else return;
+
+      const calc = new IndicatorCalculator(name, historicalData, series);
+      indicators[name] = { series, calc };
+      calc.recalculate();
     }
 
-    function updateIndicators(panelId, candle) {
-      const c = charts[panelId];
-      Object.values(c.indicators || {}).forEach(i => i.calc.update(candle));
-    }
-
-    class IndicatorCalc {
+    class IndicatorCalculator {
       constructor(name, data, series) { this.name = name; this.data = data; this.series = series; }
-      update(c) { this.data.push(c); if (this.data.length > 500) this.data.shift(); this.recalc(); }
-      recalc() {
+      update(c) { this.data.push(c); if (this.data.length > 500) this.data.shift(); this.recalculate(); }
+      recalculate() {
         const closes = this.data.map(d => d.close);
-        if (this.name === 'sma') {
-          const v = closes.map((_, i) => i < 19 ? null : closes.slice(i-19, i+1).reduce((a,b)=>a+b,0)/20);
-          this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] })));
+        if (this.name === 'sma') { const v = this.sma(closes, 20); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'ema') { const v = this.ema(closes, 20); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'rsi') { const v = this.rsi(closes, 14); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'macd') { const { macd, signal, hist } = this.macd(closes); this.series.line.setData(this.data.map((d,i) => ({ time: d.time, value: macd[i] }))); this.series.signal.setData(this.data.map((d,i) => ({ time: d.time, value: signal[i] }))); this.series.hist.setData(this.data.map((d,i) => ({ time: d.time, value: hist[i], color: hist[i] >= 0 ? '#00ff88' : '#ff3b5c' }))); }
+        else if (this.name === 'bollinger') { const { upper, middle, lower } = this.bollinger(closes, 20, 2); this.series.upper.setData(this.data.map((d,i) => ({ time: d.time, value: upper[i] }))); this.series.middle.setData(this.data.map((d,i) => ({ time: d.time, value: middle[i] }))); this.series.lower.setData(this.data.map((d,i) => ({ time: d.time, value: lower[i] }))); }
+        else if (this.name === 'stochastic') { const v = this.stochastic(this.data, 14); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'atr') { const v = this.atr(this.data, 14); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'vwap') { const v = this.vwap(this.data); this.series.setData(this.data.map((d,i) => ({ time: d.time, value: v[i] }))); }
+        else if (this.name === 'ichimoku') {
+          const { tenkan, kijun, senkouA, senkouB, chikou } = this.ichimoku(this.data);
+          this.series.tenkan.setData(this.data.map((d,i) => ({ time: d.time, value: tenkan[i] })));
+          this.series.kijun.setData(this.data.map((d,i) => ({ time: d.time, value: kijun[i] })));
+          this.series.senkouA.setData(this.data.map((d,i) => ({ time: d.time, value: senkouA[i] })));
+          this.series.senkouB.setData(this.data.map((d,i) => ({ time: d.time, value: senkouB[i] })));
+          this.series.chikou.setData(this.data.map((d,i) => ({ time: d.time, value: chikou[i] })));
         }
       }
-    }
-
-    // === UI ===
-    function setStatus(m, t='info') {
-      const e = document.getElementById('status');
-      e.textContent = m; e.className = `status ${t}`;
-    }
-    function updatePrice(p) {
-      document.getElementById('price').textContent = `$${p.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}`;
-    }
-
-    // === LAYOUT ===
-    function setLayout(count) {
-      const container = document.getElementById('layoutContainer');
-      container.innerHTML = '';
-      for (let i = 1; i <= count; i++) {
-        const panel = document.createElement('div');
-        panel.className = 'chart-panel'; panel.dataset.id = i;
-        panel.innerHTML = `
-          <div class="chart-header">
-            <div class="chart-controls">
-              <div class="dropdown"><button class="dropdown-btn"><span class="symbol">${currentSymbol.replace('USDT','')}/USDT</span></button><div class="dropdown-content"><input class="search-box"><div class="dropdown-list" data-panel="${i}"></div></div></div>
-              <div class="dropdown"><button class="dropdown-btn"><span class="tf">${currentTF}</span></button><div class="dropdown-content">
-                <div class="dropdown-item active" data-tf="1m">1m</div><div class="dropdown-item" data-tf="5m">5m</div><div class="dropdown-item" data-tf="1h">1h</div><div class="dropdown-item" data-tf="1d">1d</div>
-              </div></div>
-            </div>
-            <button class="btn" onclick="removeChart(this)">X</button>
-          </div>
-          <div class="chart-body"><div class="chart" id="chart-${i}"></div></div>
-        `;
-        container.appendChild(panel);
-        createChart(i);
+      sma(arr, p) { const res = []; for (let i = 0; i < arr.length; i++) { if (i < p-1) res.push(null); else res.push(arr.slice(i-p+1, i+1).reduce((a,b)=>a+b,0)/p); } return res; }
+      ema(arr, p) { const k = 2/(p+1), res = [arr[0]]; for (let i = 1; i < arr.length; i++) res.push(arr[i]*k + res[i-1]*(1-k)); return res; }
+      rsi(arr, p) { const res = []; let up = 0, down = 0; for (let i = 1; i < arr.length; i++) { const diff = arr[i] - arr[i-1]; if (diff > 0) up += diff; else down -= diff; if (i >= p) { const avgUp = up/p, avgDown = down/p; res.push(100 - 100/(1 + avgUp/avgDown)); up -= (arr[i-p+1] > arr[i-p] ? arr[i-p+1] - arr[i-p] : 0); down -= (arr[i-p+1] < arr[i-p] ? arr[i-p] - arr[i-p+1] : 0); } else res.push(null); } return res; }
+      macd(arr) { const fast = this.ema(arr,12), slow = this.ema(arr,26), macd = fast.map((v,i) => v - slow[i]); const signal = this.ema(macd.filter(v=>v!==null),9); const hist = macd.map((v,i) => v - signal[i]); return { macd, signal, hist }; }
+      bollinger(arr, p, dev) { const ma = this.sma(arr, p), std = arr.map((v,i) => { if (i < p-1) return null; const slice = arr.slice(i-p+1,i+1); const m = slice.reduce((a,b)=>a+b,0)/p; return Math.sqrt(slice.reduce((a,b)=>a+Math.pow(b-m,2),0)/p); }); const upper = ma.map((v,i) => v + dev*std[i]), lower = ma.map((v,i) => v - dev*std[i]); return { upper, middle: ma, lower }; }
+      stochastic(data, p) { const res = []; for (let i = 0; i < data.length; i++) { if (i < p-1) res.push(null); else { const slice = data.slice(i-p+1,i+1); const low = Math.min(...slice.map(d=>d.low)), high = Math.max(...slice.map(d=>d.high)); res.push(100 * (data[i].close - low) / (high - low)); } } return res; }
+      atr(data, p) { const tr = data.map((d,i) => i===0 ? d.high-d.low : Math.max(d.high-d.low, Math.abs(d.high-data[i-1].close), Math.abs(d.low-data[i-1].close))); return this.sma(tr, p); }
+      vwap(data) { const res = [], cumVol = [], cumPV = []; data.forEach((d,i) => { const pv = d.close * d.volume; cumVol.push((cumVol[i-1]||0) + d.volume); cumPV.push((cumPV[i-1]||0) + pv); res.push(cumPV[i]/cumVol[i]); }); return res; }
+      ichimoku(data) {
+        const tenkan = [], kijun = [], senkouA = [], senkouB = [], chikou = [];
+        const p9 = 9, p26 = 26, p52 = 52;
+        data.forEach((d, i) => {
+          if (i >= p9 - 1) {
+            const slice = data.slice(i - p9 + 1, i + 1);
+            const high = Math.max(...slice.map(x => x.high));
+            const low = Math.min(...slice.map(x => x.low));
+            tenkan.push((high + low) / 2);
+          }: else tenkan.push(null);
+          if (i >= p26 - 1) {
+            const slice = data.slice(i - p26 + 1, i + 1);
+            const high = Math.max(...slice.map(x => x.high));
+            const low = Math.min(...slice.map(x => x.low));
+            kijun.push((high + low) / 2);
+          } else kijun.push(null);
+          senkouA.push(null); senkouB.push(null);
+          chikou.push(i >= p26 ? data[i - p26].close : null);
+        });
+        return { tenkan, kijun, senkouA, senkouB, chikou };
       }
     }
 
-    function removeChart(btn) {
-      const panel = btn.closest('.chart-panel');
-      const id = panel.dataset.id;
-      charts[id].chart.remove();
-      delete charts[id];
-      panel.remove();
-      if (Object.keys(charts).length === 0) setLayout(1);
+    // ---------- UI ----------
+    function setStatus(m,t='info') { const e=document.getElementById('status'); e.textContent=m; e.className=`status ${t}`; }
+    function updatePriceDisplay(p) { const e=document.getElementById('price'); e.textContent=`$${p.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2})}`; }
+
+    function initializeTheme() {
+      const html = document.documentElement;
+      const toggle = document.getElementById('themeToggle');
+      const saved = localStorage.getItem('theme') || 'dark';
+      html.dataset.theme = saved;
+      toggle.textContent = saved === 'dark' ? 'Light' : 'Dark';
+      toggle.addEventListener('click', () => {
+        const newTheme = html.dataset.theme === 'dark' ? 'light' : 'dark';
+        html.dataset.theme = newTheme;
+        localStorage.setItem('theme', newTheme);
+        toggle.textContent = newTheme === 'dark' ? 'Light' : 'Dark';
+        if (chart) applyThemeToChart(newTheme);
+      });
     }
 
-    // === BACKTEST ===
-    function startBacktest() {
-      const data = charts['1'].data;
-      if (data.length < 10) return;
-      isBacktesting = true; backtestIndex = 0;
-      document.getElementById('pauseBacktest').disabled = false;
-      document.getElementById('startBacktest').disabled = true;
-      if (klineWs) klineWs.close();
-      runBacktestStep(data);
+    function applyThemeToChart(theme) {
+      const dark = theme === 'dark';
+      chart.applyOptions({
+        layout: { background: { color: 'transparent' }, textColor: dark ? '#e0e0ff' : '#212529' },
+        grid: { vertLines: { color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' }, horzLines: { color: dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)' } }
+      });
     }
 
-    function runBacktestStep(data) {
-      if (backtestIndex >= data.length) { endBacktest(data); return; }
-      const candle = data[backtestIndex];
-      charts['1'].main.setData(data.slice(0, backtestIndex + 1));
-      updatePrice(candle.close);
-      backtestIndex++;
-      const prog = (backtestIndex / data.length) * 100;
-      document.getElementById('backtestSlider').value = prog;
-      document.getElementById('backtestProgress').textContent = `${Math.round(prog)}%`;
-      if (isBacktesting) backtestInterval = setTimeout(() => runBacktestStep(data), 50);
+    function initializeTradingActions() {
+      document.getElementById('buyButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
+      document.getElementById('sellButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
+      document.getElementById('connectWallet').onclick = connectWeb3Wallet;
     }
 
-    function endBacktest(data) {
-      isBacktesting = false;
-      const first = data[0].close, last = data.at(-1).close;
-      const change = ((last - first) / first) * 100;
-      const res = document.getElementById('backtestResults');
-      res.style.display = 'block';
-      res.innerHTML = `<h3>Backtest Complete</h3><p>Change: <span class="${change >= 0 ? 'price-up' : 'price-down'}">${change.toFixed(2)}%</span></p>`;
+    async function connectWeb3Wallet() {
+      if (typeof window.ethereum !== 'undefined') {
+        try {
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          setStatus(`Wallet: ${accounts[0].slice(0,8)}...`, 'live');
+          document.getElementById('connectWallet').textContent = `${accounts[0].slice(0,6)}...`;
+          document.getElementById('connectWallet').style.background = 'var(--green)';
+        } catch { setStatus('Wallet failed', 'error'); }
+      } else {
+        setStatus('Install MetaMask', 'error');
+      }
     }
 
-    // === INIT ===
-    document.addEventListener('DOMContentLoaded', () => {
-      initTicker();
-      setLayout(1);
-      connectTickerWS();
+    function initializeDropdowns() {
+      const list = document.getElementById('symbolList');
+      popularSymbols.forEach(sym => {
+        const item = document.createElement('div');
+        item.className = `dropdown-item ${sym === 'BTCUSDT' ? 'active' : ''}`;
+        item.dataset.symbol = sym;
+        item.textContent = `${sym.replace('USDT','')}/USDT`;
+        item.onclick = function () {
+          document.querySelectorAll('#symbolList .dropdown-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          document.getElementById('currentSymbol').textContent = this.textContent;
+          currentSymbol = this.dataset.symbol;
+          fetchHistoricalData(currentSymbol, currentTF).then(() => connectKlineWebSocket(currentSymbol, currentTF));
+          this.closest('.dropdown-content').classList.remove('show');
+        };
+        list.appendChild(item);
+      });
 
-      // Dropdowns
+      document.querySelectorAll('#timeframeDropdown .dropdown-item').forEach(item => {
+        item.onclick = function () {
+          document.querySelectorAll('#timeframeDropdown .dropdown-item').forEach(i => i.classList.remove('active'));
+          this.classList.add('active');
+          document.getElementById('currentTimeframe').textContent = this.dataset.tf;
+          currentTF = this.dataset.tf;
+          fetchHistoricalData(currentSymbol, currentTF).then(() => connectKlineWebSocket(currentSymbol, currentTF));
+          this.closest('.dropdown-content').classList.remove('show');
+        };
+      });
+
+      document.querySelectorAll('#indicatorList .dropdown-item').forEach(item => {
+        item.onclick = function () {
+          addIndicator(this.dataset.indicator);
+          this.closest('.dropdown-content').classList.remove('show');
+        };
+      });
+
       document.querySelectorAll('.dropdown-btn').forEach(btn => {
         btn.onclick = e => {
           e.stopPropagation();
@@ -458,65 +593,110 @@
         };
       });
       document.addEventListener('click', () => document.querySelectorAll('.dropdown-content').forEach(c => c.classList.remove('show')));
+    }
 
-      // Modals
-      document.getElementById('chartSettingsBtn').onclick = () => document.getElementById('settingsModal').style.display = 'flex';
-      document.getElementById('closeModal').onclick = () => document.getElementById('settingsModal').style.display = 'none';
-      document.getElementById('layoutSettings').onclick = () => document.getElementById('layoutModal').style.display = 'flex';
-      document.getElementById('closeLayout').onclick = () => document.getElementById('layoutModal').style.display = 'none';
+    function initializeSettingsModal() {
+      const modal = document.getElementById('settingsModal');
+      document.getElementById('chartSettings').onclick = () => modal.style.display = 'flex';
+      document.getElementById('closeModal').onclick = () => modal.style.display = 'none';
+      document.getElementById('applySettings').onclick = () => {
+        const style = document.getElementById('chartStyle').value;
+        const scale = document.getElementById('priceScale').value;
+        const theme = document.getElementById('chartTheme').value;
+        const grid = document.getElementById('gridLines').value;
+        applyChartSettings(style, scale, theme, grid);
+        modal.style.display = 'none';
+      };
+      window.onclick = e => { if (e.target === modal) modal.style.display = 'none'; };
+    }
 
-      // Layout
-      document.querySelectorAll('.layout-btn').forEach(b => b.onclick = () => {
-        document.querySelectorAll('.layout-btn').forEach(x => x.classList.remove('active'));
-        b.classList.add('active');
+    function applyChartSettings(style, scale, theme, grid) {
+      if (theme !== document.documentElement.dataset.theme) {
+        document.documentElement.dataset.theme = theme;
+        localStorage.setItem('theme', theme);
+        document.getElementById('themeToggle').textContent = theme === 'dark' ? 'Light' : 'Dark';
+        applyThemeToChart(theme);
+      }
+      chart.applyOptions({
+        grid: { vertLines: { visible: grid === 'show' }, horzLines: { visible: grid === 'show' } }
       });
-      document.getElementById('applyLayout').onclick = () => {
-        const count = document.querySelector('.layout-btn.active').dataset.layout;
-        syncMode = document.getElementById('syncMode').value;
-        setLayout(+count);
-        document.getElementById('layoutModal').style.display = 'none';
-      };
+      chart.priceScale().applyOptions({
+        mode: scale === 'logarithmic' ? 1 : scale === 'percentage' ? 2 : 0
+      });
+      changeChartType(style);
+    }
 
-      // Backtest
+    function initializeBacktesting() {
       document.getElementById('startBacktest').onclick = startBacktest;
-      document.getElementById('pauseBacktest').onclick = () => { isBacktesting = false; clearTimeout(backtestInterval); document.getElementById('pauseBacktest').disabled = true; document.getElementById('startBacktest').disabled = false; };
-      document.getElementById('resetBacktest').onclick = () => {
-        isBacktesting = false; clearTimeout(backtestInterval);
-        document.getElementById('backtestSlider').value = 0;
-        document.getElementById('backtestProgress').textContent = '0%';
-        document.getElementById('backtestResults').style.display = 'none';
-        fetchHistorical('1');
-        connectTickerWS();
-      };
+      document.getElementById('pauseBacktest').onclick = pauseBacktest;
+      document.getElementById('resetBacktest').onclick = resetBacktest;
+    }
 
-      // Trading
-      document.getElementById('buyButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
-      document.getElementById('sellButton').onclick = () => window.open(`https://www.binance.com/en/trade/${currentSymbol.replace('USDT','_USDT')}`, '_blank');
-      document.getElementById('connectWallet').onclick = async () => {
-        if (window.ethereum) {
-          try {
-            const acc = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            setStatus(`Wallet: ${acc[0].slice(0,8)}...`, 'live');
-            document.getElementById('connectWallet').textContent = `${acc[0].slice(0,6)}...`;
-          } catch { setStatus('Wallet failed', 'error'); }
-        } else setStatus('Install MetaMask', 'error');
-      };
+    function startBacktest() {
+      if (historicalData.length < 10) return;
+      isBacktesting = true;
+      backtestIndex = 0;
+      document.getElementById('pauseBacktest').disabled = false;
+      document.getElementById('startBacktest').disabled = true;
+      if (klineWs) klineWs.close();
+      if (tickerWs) tickerWs.close();
+      runBacktestStep();
+    }
 
-      // Theme
-      const toggle = document.getElementById('themeToggle');
-      const saved = localStorage.getItem('theme') || 'dark';
-      document.documentElement.dataset.theme = saved;
-      toggle.textContent = saved === 'dark' ? 'Light' : 'Dark';
-      toggle.onclick = () => {
-        const newTheme = document.documentElement.dataset.theme === 'dark' ? 'light' : 'dark';
-        document.documentElement.dataset.theme = newTheme;
-        localStorage.setItem('theme', newTheme);
-        toggle.textContent = newTheme === 'dark' ? 'Light' : 'Dark';
-        Object.values(charts).forEach(c => c.chart.applyOptions({
-          layout: { textColor: newTheme === 'dark' ? '#e0e0ff' : '#212529' },
-          grid: { vertLines: { color: `var(--grid)` }, horzLines: { color: `var(--grid)` } }
-        }));
-      };
+    function pauseBacktest() {
+      isBacktesting = false;
+      clearTimeout(backtestInterval);
+      document.getElementById('pauseBacktest').disabled = true;
+      document.getElementById('startBacktest').disabled = false;
+    }
+
+    function resetBacktest() {
+      isBacktesting = false;
+      clearTimeout(backtestInterval);
+      backtestIndex = 0;
+      document.getElementById('backtestSlider').value = 0;
+      document.getElementById('backtestProgress').textContent = '0%';
+      document.getElementById('backtestResults').style.display = 'none';
+      fetchHistoricalData(currentSymbol, currentTF).then(() => connectKlineWebSocket(currentSymbol, currentTF));
+      connectTickerWebSocket();
+    }
+
+    function runBacktestStep() {
+      if (backtestIndex >= historicalData.length) { endBacktest(); return; }
+      const candle = historicalData[backtestIndex];
+      mainSeries.setData(historicalData.slice(0, backtestIndex + 1));
+      updatePriceDisplay(candle.close);
+      backtestIndex++;
+      const prog = (backtestIndex / historicalData.length) * 100;
+      document.getElementById('backtestSlider').value = prog;
+      document.getElementById('backtestProgress').textContent = `${Math.round(prog)}%`;
+      if (isBacktesting) backtestInterval = setTimeout(runBacktestStep, 100);
+    }
+
+    function endBacktest() {
+      isBacktesting = false;
+      const res = document.getElementById('backtestResults');
+      const first = historicalData[0].close;
+      const last = historicalData.at(-1).close;
+      const change = ((last - first) / first) * 100;
+      res.style.display = 'block';
+      res.innerHTML = `<h3>Backtest Complete</h3><p><strong> fun:Change:</strong> <span class="${change >= 0 ? 'price-up' : 'price-down'}">${change.toFixed(2)}%</span></p>`;
+      document.getElementById('pauseBacktest').disabled = true;
+      document.getElementById('startBacktest').disabled = false;
+    }
+
+    // ---------- INIT ----------
+    document.addEventListener('DOMContentLoaded', () => {
+      initializeTheme();
+      initializeTradingActions();
+      initializeAssetTicker();
+      initializeSettingsModal();
+      initializeDropdowns();
+      initializeBacktesting();
+      if (initializeChart()) {
+        fetchHistoricalData(currentSymbol, currentTF).then(() => connectKlineWebSocket(currentSymbol, currentTF));
+        connectTickerWebSocket();
+      }
     });
   </script>
 </body>
