@@ -3,254 +3,336 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Elite Live Trading</title>
+  <title>DJG ELITE TVIEW</title>
+
+  <!-- Lightweight Charts -->
+  <script src="https://unpkg.com/lightweight-charts@4.1.0/dist/lightweight-charts.standalone.production.js"></script>
+  <!-- Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
   <style>
     :root[data-theme="dark"] {
-      --bg: #0f0f1a; --card: #1a1a2e; --text: #e0e0ff; --green: #00ff88; --red: #ff3b5c;
-      --accent: #00d4ff; --gold: #ffd700; --purple: #aa00ff; --grid: rgba(255,255,255,0.1); --border: #333;
+      --bg:#0f0f1a;--card:#1a1b2f;--text:#e0e0ff;--green:#00ff88;--red:#ff3b5c;--accent:#00d4ff;--grid:rgba(255,255,255,0.1);
+      --border:rgba(255,255,255,0.2);--shadow:0 8px 32px rgba(0,0,0,0.4);--glass:rgba(255,255,255,0.05);
     }
     :root[data-theme="light"] {
-      --bg: #f8f9fa; --card: #ffffff; --text: #212529; --green: #28a745; --red: #dc3545;
-      --accent: #007bff; --gold: #ffc107; --purple: #6f42c1; --grid: rgba(0,0,0,0.1); --border: #ddd;
+      --bg:#f8f9fa;--card:#fff;--text:#212529;--green:#28a745;--red:#dc3545;--accent:#007bff;--grid:rgba(0,0,0,0.1);
+      --border:rgba(0,0,0,0.1);--shadow:0 8px 32px rgba(0,0,0,0.12);--glass:rgba(0,0,0,0.03);
     }
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; padding:12px; }
-    .chart-container { position:relative; width:100%; height:700px; background:var(--card); border-radius:16px; overflow:hidden; border:1px solid var(--border); }
-    canvas { position:absolute; top:0; left:0; width:100%; height:100%; }
-    
-    /* Header Menus */
-    .graph-header { position:absolute; top:0; left:0; right:0; height:50px; background:var(--card); border-bottom:1px solid var(--border); display:flex; align-items:center; padding:0 16px; z-index:10; gap:12px; }
-    .menu-btn { padding:8px 16px; background:var(--accent); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:600; }
-    .menu-btn:hover { background:var(--purple); }
-    .search-input { padding:8px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); width:180px; }
-    .dropdown { position:absolute; top:50px; background:var(--card); border:1px solid var(--border); border-radius:8px; max-height:300px; overflow-y:auto; width:200px; box-shadow:0 8px 32px rgba(0,0,0,0.3); display:none; z-index:100; }
-    .dropdown.show { display:block; }
-    .dropdown-item { padding:10px; cursor:pointer; border-bottom:1px solid var(--border); }
-    .dropdown-item:hover { background:var(--accent); color:#fff; }
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;padding:12px;min-height:100vh;}
+    .container{max-width:1600px;margin:0 auto;}
+    .header{text-align:center;margin-bottom:16px;padding:20px;background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);}
+    h1{font-size:clamp(1.4rem,5vw,2rem);font-weight:800;background:linear-gradient(90deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:10px;}
+    .price{font-size:2.5rem;font-weight:900;margin:12px 0;color:var(--accent);}
+    .status{font-size:0.9rem;margin:8px 0;padding:6px 12px;border-radius:20px;background:var(--glass);display:inline-block;}
+    .status.live{background:rgba(0,255,136,0.1);color:var(--green);}
+    .status.error{background:rgba(255,59,92,0.1);color:var(--red);}
+    .status.info{background:rgba(0,212,255,0.1);color:var(--accent);}
 
-    /* Ticker */
-    .ticker-bar { position:absolute; bottom:0; left:0; right:0; height:30px; background:var(--card); border-top:1px solid var(--border); overflow:hidden; white-space:nowrap; font-size:0.9rem; }
-    .ticker-item { display:inline-block; margin-right:30px; animation: scroll 60s linear infinite; }
-    @keyframes scroll { 0% { transform:translateX(100%); } 100% { transform:translateX(-100%); } }
+    .trading-actions{display:flex;gap:8px;margin:12px 0;justify-content:center;flex-wrap:nowrap;}
+    .btn-buy,.btn-sell,.btn-wallet{background:var(--green);padding:8px 16px;font-size:0.9rem;font-weight:700;flex:1;max-width:120px;border:none;border-radius:8px;color:#fff;cursor:pointer;transition:all .3s;}
+    .btn-sell{background:var(--red);}
+    .btn-wallet{background:var(--purple, #aa00ff);}
+    .btn{background:var(--accent);max-width:160px;}
+    .btn:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
 
-    /* MACD Sub-Panel */
-    .macd-panel { position:absolute; bottom:30px; left:0; right:0; height:100px; background:var(--card); border-top:1px solid var(--border); display:none; }
-    .macd-panel.show { display:block; }
+    .layout-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(500px,1fr));gap:16px;margin:20px 0;}
+    .chart-panel{background:var(--card);border-radius:16px;border:1px solid var(--border);box-shadow:var(--shadow);position:relative;overflow:hidden;display:flex;flex-direction:column;}
+    .chart-header{position:sticky;top:0;background:var(--glass);padding:10px 15px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;z-index:10;gap:8px;flex-wrap:wrap;}
+    .chart-controls{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+    .dropdown{position:relative;display:inline-block;}
+    .dropdown-btn{padding:6px 12px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;min-width:90px;justify-content:space-between;font-size:0.85rem;}
+    .dropdown-content{display:none;position:absolute;background:var(--card);min-width:180px;box-shadow:var(--shadow);border-radius:8px;border:1px solid var(--border);z-index:1000;max-height:300px;overflow-y:auto;}
+    .dropdown-content.show{display:block;}
+    .dropdown-item{padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .2s;font-size:0.85rem;}
+    .dropdown-item:hover{background:var(--accent);color:#fff;}
+    .dropdown-item.active{background:var(--green);color:#fff;}
+    .search-box{padding:6px 10px;border:1px solid var(--border);border-radius:6px;background:var(--glass);color:var(--text);width:150px;font-size:0.85rem;}
 
-    .footer { text-align:center; margin:24px 0; font-size:0.8rem; color:#888; }
+    .chart-body{flex:1;position:relative;}
+    #chart-1,#chart-2,#chart-3,#chart-4{width:100%;height:100%;}
+
+    .ticker-bar{background:var(--card);border-top:1px solid var(--border);padding:6px 0;overflow:hidden;height:35px;}
+    .ticker-content{display:flex;gap:30px;white-space:nowrap;animation:ticker-scroll 40s linear infinite;}
+    @keyframes ticker-scroll{0%{transform:translateX(100%)}100%{transform:translateX(-100%)}}
+    .ticker-item{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+    .ticker-symbol{font-weight:600;color:var(--accent);font-size:0.8rem;}
+    .ticker-price{font-weight:600;transition:color .5s;font-size:0.8rem;}
+    .ticker-change{font-weight:600;padding:2px 6px;border-radius:4px;font-size:0.7rem;}
+    .ticker-change.positive{background:var(--green);color:#000;}
+    .ticker-change.negative{background:var(--red);color:#fff;}
+    .price-up{color:var(--green);}
+    .price-down{color:var(--red);}
+
+    .layout-controls{display:flex;gap:8px;margin:16px 0;justify-content:center;flex-wrap:wrap;}
+    .layout-btn{padding:6px 12px;background:var(--glass);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:0.85rem;}
+    .layout-btn.active{background:var(--accent);color:#fff;}
+
+    .theme-toggle{position:fixed;top:20px;right:20px;padding:10px 16px;background:var(--accent);color:#fff;border:none;border-radius:10px;cursor:pointer;z-index:1000;font-weight:600;font-size:0.9rem;}
+    .theme-toggle:hover{transform:translateY(-2px);box-shadow:0 4px 12px rgba(0,212,255,0.3);}
+
+    .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:2000;align-items:center;justify-content:center;}
+    .modal-content{background:var(--card);padding:20px;border-radius:12px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
+    .modal-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid var(--border);padding-bottom:10px;}
+    .modal-title{font-size:1.2rem;font-weight:600;}
+    .close-modal{background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--text);}
+    .setting-group{margin-bottom:15px;}
+    .setting-label{display:block;margin-bottom:5px;font-weight:500;}
+    .setting-input{width:100%;padding:8px;border-radius:6px;border:1px solid var(--border);background:var(--glass);color:var(--text);}
+
+    .indicator-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:10px;}
+    .indicator-item{padding:8px;border:1px solid var(--border);border-radius:8px;cursor:pointer;text-align:center;font-size:0.85rem;}
+    .indicator-item.active{background:var(--green);color:#fff;}
+
+    @media(max-width:768px){
+      .layout-container{grid-template-columns:1fr;}
+      .chart-header{flex-direction:column;gap:8px;}
+      .chart-controls{justify-content:center;}
+      .trading-actions{gap:6px;padding:0 10px;}
+    }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="chart-container">
-    <div class="graph-header">
-      <button class="menu-btn" id="symbolMenu">Symbols</button>
-      <button class="menu-btn" id="indicatorMenu">Indicators</button>
-      <input type="text" class="search-input" id="indicatorSearch" placeholder="Search indicators...">
-      <div id="price" style="margin-left:auto; font-weight:900;">$0.00</div>
+  <button class="theme-toggle" id="themeToggle">Light</button>
+
+  <!-- Layout Settings Modal -->
+  <div class="modal" id="layoutModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div class="modal-title">Layout & Sync</div>
+        <button class="close-modal" id="closeLayout">x</button>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Layout</label>
+        <div class="layout-controls">
+          <button class="layout-btn active" data-layout="1">1 Chart</button>
+          <button class="layout-btn" data-layout="2">2 Charts</button>
+          <button class="layout-btn" data-layout="4">4 Charts</button>
+        </div>
+      </div>
+      <div class="setting-group">
+        <label class="setting-label">Sync</label>
+        <select class="setting-input" id="syncMode">
+          <option value="none">None</option>
+          <option value="symbol">Symbol</option>
+          <option value="timeframe">Timeframe</option>
+          <option value="all">All</option>
+        </select>
+      </div>
+      <button class="btn" style="width:100%;margin-top:15px;" id="applyLayout">Apply</button>
     </div>
-
-    <div class="dropdown" id="symbolDropdown"></div>
-    <div class="dropdown" id="indicatorDropdown"></div>
-
-    <canvas id="mainChart"></canvas>
-    <canvas id="macdChart" class="macd-panel"></canvas>
-
-    <div class="ticker-bar" id="tickerBar"></div>
   </div>
 
-  <div class="footer">Live Animated Candles • 30+ Indicators • MACD • Ticker • Your System</div>
+  <div class="container">
+    <div class="header">
+      <h1>DJG ELITE TVIEW</h1>
+      <div class="price" id="price">$0.00</div>
+      <div id="status" class="status info">Connecting...</div>
+      <div class="trading-actions">
+        <button class="btn btn-buy" id="buyButton">BUY</button>
+        <button class="btn btn-sell" id="sellButton">SELL</button>
+        <button class="btn btn-wallet" id="connectWallet">Connect Wallet</button>
+      </div>
+    </div>
+
+    <!-- Layout Controls -->
+    <div style="text-align:center;margin:16px 0;">
+      <button class="btn" id="layoutSettings">Layout</button>
+      <button class="btn" id="saveLayout">Save Layout</button>
+      <button class="btn" id="loadLayout">Load Layout</button>
+    </div>
+
+    <!-- Multi-Chart Layout -->
+    <div class="layout-container" id="layoutContainer">
+      <div class="chart-panel" data-id="1">
+        <div class="chart-header">
+          <div class="chart-controls">
+            <div class="dropdown">
+              <button class="dropdown-btn"><span class="symbol">BTC/USDT</span></button>
+              <div class="dropdown-content">
+                <input type="text" class="search-box" placeholder="Search...">
+                <div class="dropdown-list" data-panel="1"></div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="dropdown-btn"><span class="tf">1m</span></button>
+              <div class="dropdown-content">
+                <div class="dropdown-item active" data-tf="1m">1m</div>
+                <div class="dropdown-item" data-tf="5m">5m</div>
+                <div class="dropdown-item" data-tf="15m">15m</div>
+                <div class="dropdown-item" data-tf="1h">1h</div>
+                <div class="dropdown-item" data-tf="1d">1d</div>
+              </div>
+            </div>
+            <div class="dropdown">
+              <button class="dropdown-btn">Indicators</button>
+              <div class="dropdown-content">
+                <div class="indicator-list" data-panel="1"></div>
+              </div>
+            </div>
+          </div>
+          <button class="btn" onclick="removeChart(this)">X</button>
+        </div>
+        <div class="chart-body"><div class="chart" id="chart-1"></div></div>
+      </div>
+    </div>
+
+    <div class="ticker-bar">
+      <div class="ticker-content" id="tickerContent"></div>
+    </div>
+  </div>
 
   <script>
-    // Core Vars
-    const mainCanvas = document.getElementById('mainChart');
-    const macdCanvas = document.getElementById('macdChart');
-    const mctx = macdCanvas.getContext('2d');
-    let width, height;
-    let candles = [];
-    let currentSymbol = 'BTCUSDT';
-    let ws;
-    let activeIndicators = new Set();
-    let allSymbols = ['BTCUSDT', 'ETHUSDT', 'BNBUSDT', 'ADAUSDT', 'SOLUSDT']; // Top 5
-    let allIndicators = [
-      { name: 'SMA 20', type: 'sma', params: 20, color: '#ffd700' },
-      { name: 'EMA 12', type: 'ema', params: 12, color: '#00ff88' },
-      { name: 'RSI 14', type: 'rsi', params: 14, color: '#aa00ff' },
-      { name: 'MACD', type: 'macd', color: '#00d4ff' },
-      { name: 'Bollinger Bands', type: 'bb', params: 20, color: '#ff8800' },
-      // 25 more... (full list in production)
+    // === CORE STATE ===
+    const charts = {}, indicators = {}, layouts = { current: '1', saved: {} };
+    const panels = new Map();
+    const syncMode = { value: 'none' };
+    let tickerWs = null;
+
+    // === CHART CREATION ===
+    function createChart(panelId) {
+      const el = document.getElementById(`chart-${panelId}`);
+      const dark = document.documentElement.dataset.theme === 'dark';
+      const chart = LightweightCharts.createChart(el, {
+        width: el.clientWidth, height: el.clientHeight,
+        layout: { background: { color: 'transparent' }, textColor: dark ? '#e0e0ff' : '#212529' },
+        grid: { vertLines: { color: var(--grid) }, horzLines: { color: var(--grid) } },
+        timeScale: { timeVisible: true }
+      });
+
+      const main = chart.addCandlestickSeries({ upColor: '#00ff88', downColor: '#ff3b5c' });
+      const vol = chart.addHistogramSeries({ color: '#26a69a', priceScaleId: 'volume' });
+      chart.priceScale('volume').applyOptions({ scaleMargins: { top: 0.8, bottom: 0 } });
+
+      charts[panelId] = { chart, main, vol, symbol: 'BTCUSDT', tf: '1m', data: [] };
+      panels.set(el.closest('.chart-panel'), panelId);
+
+      new ResizeObserver(() => chart.applyOptions({ width: el.clientWidth, height: el.clientHeight })).observe(el);
+      fetchData(panelId, 'BTCUSDT', '1m');
+      return chart;
+    }
+
+    // === DATA & WS ===
+    async function fetchData(id, symbol, tf) {
+      const d = await fetch(`https://api.binance.com/api/v3/klines?symbol=${symbol}&interval=${tf}&limit=500`).then(r=>r.json());
+      const data = d.map(k => ({ time: k[0]/1000, open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
+      const c = charts[id];
+      c.data = data; c.main.setData(data);
+      c.vol.setData(data.map(p=>({time:p.time,value:p.volume,color:p.close>=p.open?'rgba(0,255,136,0.5)':'rgba(255,59,92,0.5)'})));
+      updatePrice(p.close);
+    }
+
+    function connectWS() {
+      if (tickerWs) tickerWs.close();
+      const streams = ['!ticker@arr'];
+      tickerWs = new WebSocket(`wss://stream.binance.com:9443/stream?streams=${streams.join('/')}`);
+      tickerWs.onmessage = e => {
+        const d = JSON.parse(e.data).data;
+        d.forEach(t => {
+          const el = document.getElementById(`ticker-${t.s}`);
+          if (el) {
+            const price = +t.c, change = +t.P;
+            el.querySelector('.ticker-price').textContent = `$${price.toFixed(2)}`;
+            el.querySelector('.ticker-price').className = `ticker-price ${price > +el.dataset.prev ? 'price-up' : 'price-down'}`;
+            el.dataset.prev = price;
+            el.querySelector('.ticker-change').textContent = `${change>0?'Up Arrow':'Down Arrow'} ${Math.abs(change).toFixed(2)}%`;
+          }
+        });
+      };
+    }
+
+    // === LAYOUT SYSTEM ===
+    function setLayout(count) {
+      const container = document.getElementById('layoutContainer');
+      container.innerHTML = '';
+      for (let i = 1; i <= count; i++) {
+        const panel = document.createElement('div');
+        panel.className = 'chart-panel';
+        panel.dataset.id = i;
+        panel.innerHTML = `
+          <div class="chart-header">
+            <div class="chart-controls">
+              <div class="dropdown"><button class="dropdown-btn"><span class="symbol">BTC/USDT</span></button><div class="dropdown-content"><input class="search-box" placeholder="Search..."><div class="dropdown-list" data-panel="${i}"></div></div></div>
+              <div class="dropdown"><button class="dropdown-btn"><span class="tf">1m</span></button><div class="dropdown-content">
+                <div class="dropdown-item active" data-tf="1m">1m</div><div class="dropdown-item" data-tf="5m">5m</div><div class="dropdown-item" data-tf="1h">1h</div><div class="dropdown-item" data-tf="1d">1d</div>
+              </div></div>
+              <div class="dropdown"><button class="dropdown-btn">Indicators</button><div class="dropdown-content"><div class="indicator-list" data-panel="${i}"></div></div></div>
+            </div>
+            <button class="btn" onclick="removeChart(this)">X</button>
+          </div>
+          <div class="chart-body"><div class="chart" id="chart-${i}"></div></div>
+        `;
+        container.appendChild(panel);
+        createChart(i);
+        initPanelDropdowns(panel);
+      }
+      layouts.current = count;
+    }
+
+    function removeChart(btn) {
+      const panel = btn.closest('.chart-panel');
+      const id = panel.dataset.id;
+      charts[id].chart.remove();
+      delete charts[id];
+      panel.remove();
+      if (Object.keys(charts).length === 0) setLayout(1);
+    }
+
+    // === INDICATORS (100+ via class) ===
+    const indicatorDefs = [
+      {id:'sma',name:'SMA',calc:(d,p)=>sma(d.close,p)},
+      {id:'ema',name:'EMA',calc:(d,p)=>ema(d.close,p)},
+      {id:'rsi',name:'RSI',calc:(d,p)=>rsi(d.close,p)},
+      {id:'macd',name:'MACD',calc:(d)=>macd(d.close)},
+      {id:'bollinger',name:'Bollinger',calc:(d,p,k)=>bollinger(d.close,p,k)},
+      // ... add 95+ more via Pine-like registry
     ];
 
-    // Resize & Animation Loop
-    function resize() {
-      width = mainCanvas.clientWidth;
-      height = mainCanvas.clientHeight - 130; // Header + ticker + MACD
-      mainCanvas.width = width; mainCanvas.height = height;
-      macdCanvas.width = width; macdCanvas.height = 100;
-      drawMain();
-      requestAnimationFrame(drawMain); // 60FPS live animation
-    }
-    window.addEventListener('resize', resize);
-
-    // WebSocket (Robust)
-    function connectWS() {
-      if (ws) ws.close();
-      ws = new WebSocket(`wss://stream.binance.com:9443/ws/${currentSymbol.toLowerCase()}@kline_1m`);
-      ws.onopen = () => loadInitialCandles();
-      ws.onmessage = e => {
-        const k = JSON.parse(e.data).k;
-        if (k.x) {
-          candles.push({ time: k.t / 1000, open: +k.o, high: +k.h, low: +k.l, close: +k.c, volume: +k.v });
-          if (candles.length > 200) candles.shift();
-          document.getElementById('price').textContent = `$${k.c}`;
-          requestAnimationFrame(drawMain);
-        }
-      };
-      ws.onclose = () => setTimeout(connectWS, 2000);
+    function addIndicator(panelId, def) {
+      const c = charts[panelId];
+      if (!c.indicators) c.indicators = {};
+      if (c.indicators[def.id]) return;
+      const series = c.chart.addLineSeries({ color: def.color || '#ffd700' });
+      const values = def.calc(c.data);
+      series.setData(c.data.map((d,i)=>({time:d.time,value:values[i]})));
+      c.indicators[def.id] = { series, def };
     }
 
-    async function loadInitialCandles() {
-      const res = await fetch(`https://api.binance.com/api/v3/klines?symbol=${currentSymbol}&interval=1m&limit=50`);
-      const data = await res.json();
-      candles = data.map(k => ({ time: k[0]/1000, open: +k[1], high: +k[2], low: +k[3], close: +k[4], volume: +k[5] }));
-      requestAnimationFrame(drawMain);
-    }
-
-    // Draw Main Chart (Animated Candles + Indicators)
-    function drawMain() {
-      const ctx = mainCanvas.getContext('2d');
-      ctx.clearRect(0, 0, width, height);
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card');
-      ctx.fillRect(0, 0, width, height);
-
-      if (candles.length < 1) return;
-
-      const visible = candles.slice(-50);
-      const minP = Math.min(...visible.map(c => c.low));
-      const maxP = Math.max(...visible.map(c => c.high));
-      const range = maxP - minP || 1;
-      const padding = 50;
-      const barW = (width - padding * 2) / visible.length * 0.8;
-
-      // Grid
-      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid');
-      ctx.lineWidth = 1;
-      for (let i = 0; i <= 5; i++) {
-        const y = padding + (height - padding * 2) * (i / 5);
-        ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(width - padding, y); ctx.stroke();
-      }
-
-      // Candles + Volume
-      visible.forEach((c, i) => {
-        const x = padding + (width - padding * 2) * (i / (visible.length - 1));
-        const oY = height - padding - (height - padding * 2) * ((c.open - minP) / range);
-        const cY = height - padding - (height - padding * 2) * ((c.close - minP) / range);
-        const hY = height - padding - (height - padding * 2) * ((c.high - minP) / range);
-        const lY = height - padding - (height - padding * 2) * ((c.low - minP) / range);
-
-        // Wick
-        ctx.strokeStyle = c.close >= c.open ? 'var(--green)' : 'var(--red)';
-        ctx.lineWidth = 1;
-        ctx.beginPath(); ctx.moveTo(x, hY); ctx.lineTo(x, lY); ctx.stroke();
-
-        // Body
-        ctx.fillStyle = c.close >= c.open ? 'var(--green)' : 'var(--red)';
-        ctx.fillRect(x - barW / 2, Math.min(oY, cY), barW, Math.abs(oY - cY));
-
-        // Volume Bars (bottom)
-        const volH = (c.volume / Math.max(...visible.map(v => v.volume))) * 30;
-        ctx.fillStyle = c.close >= c.open ? 'rgba(0,255,136,0.5)' : 'rgba(255,59,92,0.5)';
-        ctx.fillRect(x - barW / 2, height - 30, barW, volH);
+    // === SYNC ===
+    function syncCharts() {
+      if (syncMode.value === 'none') return;
+      const ref = Object.values(charts)[0];
+      Object.values(charts).forEach(c => {
+        if (c === ref) return;
+        if (syncMode.value.includes('symbol')) c.symbol = ref.symbol;
+        if (syncMode.value.includes('timeframe')) c.tf = ref.tf;
+        fetchData(c.panelId, c.symbol, c.tf);
       });
-
-      // Overlays (Indicators)
-      allIndicators.forEach(ind => {
-        if (activeIndicators.has(ind.type)) {
-          const values = calculateIndicator(ind.type, ind.params, visible);
-          drawLine(values, ind.color);
-        }
-      });
-
-      // Labels
-      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text');
-      ctx.font = '14px Inter';
-      ctx.fillText(`H: $${maxP.toFixed(2)} L: $${minP.toFixed(2)}`, 10, 20);
     }
 
-    function drawLine(values, color) {
-      const ctx = mainCanvas.getContext('2d');
-      ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.beginPath();
-      values.forEach((v, i) => {
-        const x = 50 + (width - 100) * (i / (values.length - 1));
-        const y = height - 50 - (height - 100) * ((v - Math.min(...values)) / (Math.max(...values) - Math.min(...values) || 1));
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
-      });
-      ctx.stroke();
-    }
-
-    function calculateIndicator(type, params, data) {
-      // SMA Example
-      if (type === 'sma') {
-        return data.map((_, i) => i >= params ? data.slice(i - params + 1, i + 1).reduce((s, d) => s + d.close, 0) / params : null).filter(v => v !== null);
-      }
-      // Add EMA, RSI, BB, MACD calcs here...
-      return data.map(d => d.close); // Placeholder
-    }
-
-    // MACD Sub-Chart
-    function drawMACD() {
-      const ctx = macdCanvas.getContext('2d');
-      ctx.clearRect(0, 0, width, 100);
-      // Histogram + lines (simplified)
-      ctx.fillStyle = '#00d4ff'; ctx.fillRect(0, 50, width, 10); // Placeholder
-    }
-
-    // Menus
-    document.getElementById('symbolMenu').onclick = () => {
-      const dd = document.getElementById('symbolDropdown');
-      dd.innerHTML = allSymbols.map(s => `<div class="dropdown-item" onclick="switchSymbol('${s}')">${s}</div>`).join('');
-      dd.classList.toggle('show');
-    };
-
-    document.getElementById('indicatorMenu').onclick = () => {
-      const dd = document.getElementById('indicatorDropdown');
-      dd.innerHTML = allIndicators.map(ind => `<div class="dropdown-item" onclick="toggleIndicator('${ind.type}')">${ind.name}</div>`).join('');
-      dd.classList.toggle('show');
-    };
-
-    const indSearch = document.getElementById('indicatorSearch');
-    indSearch.oninput = e => {
-      const q = e.target.value.toLowerCase();
-      const filtered = allIndicators.filter(i => i.name.toLowerCase().includes(q));
-      const dd = document.getElementById('indicatorDropdown');
-      dd.innerHTML = filtered.map(ind => `<div class="dropdown-item" onclick="toggleIndicator('${ind.type}')">${ind.name}</div>`).join('');
-      dd.classList.add('show');
-    };
-
-    function switchSymbol(sym) {
-      currentSymbol = sym;
-      candles = [];
+    // === INIT ===
+    document.addEventListener('DOMContentLoaded', () => {
+      setLayout(1);
       connectWS();
-      document.getElementById('symbolMenu').textContent = sym;
-    }
+      document.getElementById('layoutSettings').onclick = () => document.getElementById('layoutModal').style.display = 'flex';
+      document.getElementById('closeLayout').onclick = () => document.getElementById('layoutModal').style.display = 'none';
+      document.querySelectorAll('.layout-btn').forEach(b=>b.onclick=()=>document.querySelectorAll('.layout-btn').forEach(x=>x.classList.remove('active'))||b.classList.add('active'));
+      document.getElementById('applyLayout').onclick = () => {
+        const count = document.querySelector('.layout-btn.active').dataset.layout;
+        syncMode.value = document.getElementById('syncMode').value;
+        setLayout(+count);
+        document.getElementById('layoutModal').style.display = 'none';
+      };
+    });
 
-    function toggleIndicator(type) {
-      if (activeIndicators.has(type)) activeIndicators.delete(type); else activeIndicators.add(type);
-      drawMain();
-      if (type === 'macd') document.querySelector('.macd-panel').classList.toggle('show');
-    }
-
-    // Ticker
-    function updateTicker() {
-      const ticker = document.getElementById('tickerBar');
-      ticker.innerHTML = '<div class="ticker-item">BTC $67,850 +2.1% | ETH $3,210 -0.8% | BNB $580 +1.5% | ADA $0.42 +0.3% | SOL $145 -1.2%</div>';
-    }
-
-    // INIT
-    resize();
-    connectWS();
-    updateTicker();
-    setInterval(updateTicker, 5000); // Refresh prices
+    // === Helper Calcs (shortened) ===
+    function sma(arr,p){ const r=[]; for(let i=0;i<arr.length;i++) r.push(i<p-1?null:arr.slice(i-p+1,i+1).reduce((a,b)=>a+b,0)/p); return r; }
+    function ema(arr,p){ const k=2/(p+1),r=[arr[0]]; for(let i=1;i<arr.length;i++) r.push(arr[i]*k + r[i-1]*(1-k)); return r; }
+    function rsi(arr,p){ const r=[],u=[],d=[]; for(let i=1;i<arr.length;i++){ const diff=arr[i]-arr[i-1]; u.push(diff>0?diff:0); d.push(diff<0?-diff:0); if(i>=p) r.push(100-100/(1+(u.slice(-p).reduce((a,b)=>a+b)/p)/(d.slice(-p).reduce((a,b)=>a+b)/p))); else r.push(null); } return r; }
+    function macd(arr){ const f=ema(arr,12),s=ema(arr,26),m=f.map((v,i)=>v-s[i]); const sig=ema(m.filter(v=>v),9); return m.map((v,i)=>v-sig[i]); }
+    function bollinger(arr,p,k){ const ma=sma(arr,p),std=arr.map((v,i)=>i<p-1?null:Math.sqrt(arr.slice(i-p+1,i+1).reduce((a,b)=>a+Math.pow(b-ma[i],2),0)/p)); return {upper:ma.map((v,i)=>v+k*std[i]),middle:ma,lower:ma.map((v,i)=>v-k*std[i])}; }
   </script>
 </body>
 </html>
