@@ -323,9 +323,21 @@
     });
 
     // Init
-    initChart();
-    connectWS();
-    fetchHistorical();
+    // ───── INIT: FIXED BINANCE CONNECT + PRICE + STATUS ─────
+initChart();
+setStatus('Connecting to Binance...', 'info');
+connectWS();
+
+// Pre-load last known price + force update
+fetch('https://api.binance.com/api/v3/ticker/price?symbol=' + currentSymbol)
+  .then(r => r.json())
+  .then(d => {
+    updatePrice(d.price);
+    setStatus('LIVE • Price loaded', 'live');
+  })
+  .catch(() => setStatus('Using WebSocket only...', 'info'));
+
+fetchHistorical();
 
     // (Keep indicators, alerts, drawing, scripting from previous version — omitted for brevity but fully included in deployed version)
   </script>
