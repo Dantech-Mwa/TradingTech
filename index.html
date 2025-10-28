@@ -4,18 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Elite Live Trading</title>
-
-  <!-- PURE CANVAS CHART ENGINE (NO TRADINGVIEW, NO LIGHTWEIGHT) -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-
   <style>
     :root[data-theme="dark"] {
       --bg: #0f0f1a; --card: rgba(20,20,40,0.7); --text: #e0e0ff; --green: #00ff88; --red: #ff3b5c;
-      --accent: #00d4ff; --gold: #ffd700; --purple: #aa00ff; --grid: rgba(255,255,255,0.1); --border: rgba(255,255,255,0.1);
+      --accent: #00d4ff; --grid: rgba(255,255,255,0.1); --border: rgba(255,255,255,0.1);
     }
     :root[data-theme="light"] {
       --bg: #f8f9fa; --card: rgba(255,255,255,0.9); --text: #212529; --green: #28a745; --red: #dc3545;
-      --accent: #007bff; --gold: #ffc107; --purple: #6f42c1; --grid: rgba(0,0,0,0.1); --border: rgba(0,0,0,0.1);
+      --accent: #007bff; --grid: rgba(0,0,0,0.1); --border: rgba(0,0,0,0.1);
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; padding:12px; min-height:100vh; }
@@ -28,7 +24,7 @@
     .status.error { color:var(--red); }
     .controls { display:flex; justify-content:center; gap:8px; flex-wrap:wrap; margin:12px 0; }
     .btn { padding:8px 16px; border:none; border-radius:8px; background:var(--accent); color:#fff; cursor:pointer; font-weight:600; }
-    .btn:hover { background:var(--purple); }
+    .btn:hover { background:#aa00ff; }
     .btn.active { background:var(--green); }
     .search-container { display:flex; gap:8px; margin:12px 0; }
     #symbolSearch { padding:8px 12px; border:1px solid var(--border); border-radius:8px; background:var(--card); color:var(--text); flex:1; max-width:300px; }
@@ -62,12 +58,13 @@
 
   <script>
     // ──────────────────────────────────────────────────────────────
-    // PURE CANVAS CHART ENGINE + BINANCE LIVE (NO TRADINGVIEW)
+    // PURE CANVAS + WEBSOCKET FIXED + DEBOUNCE
     // ──────────────────────────────────────────────────────────────
     const canvas = document.getElementById('chart');
     const ctx = canvas.getContext('2d');
     let width, height;
-    let data = [], currentSymbol = 'BTCUSDT', ws;
+    let data = [], currentSymbol = 'BTCUSDT', ws = null;
+    let reconnectTimeout;
 
     // Resize
     function resize() {
@@ -87,50 +84,73 @@
       document.getElementById('price').textContent = `$${parseFloat(p).toFixed(2)}`;
     }
 
-    // Binance WebSocket
+    // Binance WebSocket (FIXED)
     function connectWS() {
-      if (ws) ws.close();
+      // Clean up old connection
+      if (ws) {
+        ws.onopen = ws.onmessage = ws.onerror = ws.onclose = null;
+        ws.close();
+      }
+      clearTimeout(reconnectTimeout);
+
       setStatus('Connecting...', 'info');
-      ws = new WebSocket(`wss://stream.binance.com:9443/ws/${currentSymbol.toLowerCase()}@ticker`);
+      const stream = currentSymbol.toLowerCase() + '@ticker';
+      ws = new WebSocket('wss://stream.binance.com:9443/ws/' + stream);
+
       ws.onopen = () => {
         setStatus('LIVE • Connected', 'live');
-        // Force immediate price
-        fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentSymbol}`)
-          .then(r => r.json())
-          .then(d => updatePrice(d.price))
-          .catch(() => {});
+        // Immediate price
+        fetchPrice();
       };
+
       ws.onmessage = e => {
         const d = JSON.parse(e.data);
         updatePrice(d.c);
-        // Add to data for chart
         data.push({ time: Date.now(), price: +d.c });
         if (data.length > 100) data.shift();
         draw();
       };
-      ws.onerror = () => setStatus('Error', 'error');
-      ws.onclose = () => setTimeout(connectWS, 3000);
+
+      ws.onerror = () => {
+        setStatus('Connection error', 'error');
+      };
+
+      ws.onclose = () => {
+        setStatus('Reconnecting in 3s...', 'error');
+        reconnectTimeout = setTimeout(connectWS, 3000);
+      };
+    }
+
+    // Fetch price immediately (fallback)
+    function fetchPrice() {
+      fetch(`https://api.binance.com/api/v3/ticker/price?symbol=${currentSymbol}`)
+        .then(r => r.json())
+        .then(d => updatePrice(d.price))
+        .catch(() => {});
     }
 
     // Pure Canvas Chart
     function draw() {
-      ctx.fillStyle = 'var(--card)'; ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--card').trim();
+      ctx.fillRect(0, 0, width, height);
       if (data.length < 2) return;
 
       const prices = data.map(d => d.price);
       const min = Math.min(...prices), max = Math.max(...prices);
       const range = max - min || 1;
-      const padding = 40;
+      const padding = 50;
 
       // Grid
-      ctx.strokeStyle = 'var(--grid)'; ctx.lineWidth = 1;
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--grid').trim();
+      ctx.lineWidth = 1;
       for (let i = 0; i <= 5; i++) {
         const y = padding + (height - 2*padding) * (i/5);
         ctx.beginPath(); ctx.moveTo(padding, y); ctx.lineTo(width - padding, y); ctx.stroke();
       }
 
       // Price Line
-      ctx.strokeStyle = 'var(--green)'; ctx.lineWidth = 2;
+      ctx.strokeStyle = getComputedStyle(document.documentElement).getPropertyValue('--green').trim();
+      ctx.lineWidth = 2;
       ctx.beginPath();
       data.forEach((d, i) => {
         const x = padding + (width - 2*padding) * (i / (data.length - 1));
@@ -140,19 +160,24 @@
       ctx.stroke();
 
       // Labels
-      ctx.fillStyle = 'var(--text)'; ctx.font = '12px Inter';
-      ctx.fillText(`$${max.toFixed(2)}`, width - padding - 50, 20);
-      ctx.fillText(`$${min.toFixed(2)}`, width - padding - 50, height - 20);
+      ctx.fillStyle = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+      ctx.font = '14px Inter';
+      ctx.fillText(`$${max.toFixed(2)}`, width - padding - 80, 25);
+      ctx.fillText(`$${min.toFixed(2)}`, width - padding - 80, height - 10);
     }
 
-    // Symbol Switch
+    // Symbol Switch with DEBOUNCE
+    let switchTimeout;
     document.querySelectorAll('[data-symbol]').forEach(b => {
       b.onclick = () => {
+        clearTimeout(switchTimeout);
         document.querySelectorAll('[data-symbol]').forEach(x => x.classList.remove('active'));
         b.classList.add('active');
         currentSymbol = b.dataset.symbol;
         data = [];
-        connectWS();
+        switchTimeout = setTimeout(() => {
+          connectWS();
+        }, 300); // Prevent spam
       };
     });
 
@@ -161,11 +186,13 @@
     const resultsDiv = document.getElementById('symbolResults');
     let allSymbols = [];
     searchInput.oninput = async () => {
-      const q = searchInput.value.toUpperCase();
+      const q = searchInput.value.toUpperCase().trim();
       if (q.length < 2) { resultsDiv.style.display = 'none'; return; }
       if (!allSymbols.length) {
-        const res = await fetch('https://api.binance.com/api/v3/exchangeInfo');
-        allSymbols = (await res.json()).symbols.filter(s => s.status === 'TRADING').map(s => s.symbol);
+        try {
+          const res = await fetch('https://api.binance.com/api/v3/exchangeInfo');
+          allSymbols = (await res.json()).symbols.filter(s => s.status === 'TRADING').map(s => s.symbol);
+        } catch (e) { console.error(e); }
       }
       const matches = allSymbols.filter(s => s.includes(q)).slice(0, 10);
       resultsDiv.innerHTML = matches.map(s => `<div class="result-item" onclick="selectSymbol('${s}')">${s}</div>`).join('');
@@ -175,13 +202,19 @@
     function selectSymbol(sym) {
       currentSymbol = sym;
       data = [];
-      connectWS();
+      document.querySelectorAll('[data-symbol]').forEach(x => x.classList.remove('active'));
+      const btn = document.createElement('button');
+      btn.className = 'btn active'; btn.textContent = sym.replace('USDT',''); btn.dataset.symbol = sym;
+      document.querySelector('.controls').appendChild(btn);
+      btn.onclick = () => { currentSymbol = sym; data = []; setTimeout(connectWS, 300); };
       searchInput.value = ''; resultsDiv.style.display = 'none';
+      setTimeout(connectWS, 300);
     }
 
     // INIT
     resize();
     connectWS();
+    fetchPrice(); // Immediate price
   </script>
 </body>
 </html>
